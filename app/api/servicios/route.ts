@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { getDb } from "@/lib/db";
 import {
   CategoriaServicio,
   CrearServicioPayload,
   ServicioLocal,
   TipoCobertura,
 } from "@/types/viasur";
+
+// Esta ruta depende de la base de datos en cada request (semilla diaria,
+// query params); nunca debe prerenderizarse en build time.
+export const dynamic = "force-dynamic";
 
 const CATEGORIAS_VALIDAS = Object.values(CategoriaServicio);
 const COBERTURAS_VALIDAS = Object.values(TipoCobertura);
@@ -51,23 +55,21 @@ export async function GET(request: NextRequest) {
   }
 
   const seedValue = calcularSemillaDiaria();
+  const sql = getDb();
 
-  const { data, error } = await supabaseServer.rpc(
-    "obtener_servicios_por_dia",
-    {
-      seed_value: seedValue,
-      p_localidad_id: localidadId,
-    }
-  );
+  try {
+    const servicios = (await sql`
+      select *
+      from obtener_servicios_por_dia(${seedValue}, ${localidadId})
+    `) as ServicioLocal[];
 
-  if (error) {
+    return NextResponse.json({ servicios });
+  } catch {
     return NextResponse.json(
       { error: "No se pudieron obtener los servicios." },
       { status: 500 }
     );
   }
-
-  return NextResponse.json({ servicios: data as ServicioLocal[] });
 }
 
 /**
@@ -128,30 +130,25 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { data, error } = await supabaseServer
-    .from("servicios_locales")
-    .insert({
-      usuario_id: usuario_id ?? null,
-      nombre_servicio,
-      tipo_categoria,
-      localidad_id,
-      cobertura,
-      direccion_exacta: direccion_exacta ?? null,
-      whatsapp: whatsapp ?? null,
-      descripcion: descripcion ?? null,
-    })
-    .select()
-    .single();
+  const sql = getDb();
 
-  if (error) {
+  try {
+    const [servicio] = (await sql`
+      insert into servicios_locales (
+        usuario_id, nombre_servicio, tipo_categoria, localidad_id,
+        cobertura, direccion_exacta, whatsapp, descripcion
+      ) values (
+        ${usuario_id ?? null}, ${nombre_servicio}, ${tipo_categoria}, ${localidad_id},
+        ${cobertura}, ${direccion_exacta ?? null}, ${whatsapp ?? null}, ${descripcion ?? null}
+      )
+      returning *
+    `) as ServicioLocal[];
+
+    return NextResponse.json({ servicio }, { status: 201 });
+  } catch {
     return NextResponse.json(
       { error: "No se pudo registrar el servicio." },
       { status: 500 }
     );
   }
-
-  return NextResponse.json(
-    { servicio: data as ServicioLocal },
-    { status: 201 }
-  );
 }

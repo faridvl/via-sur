@@ -6,7 +6,7 @@ PWA / Mobile-First — directorio de servicios locales del sur de Costa Rica (R�
 
 - [Next.js 14](https://nextjs.org/) (App Router) + TypeScript
 - [TailwindCSS](https://tailwindcss.com/)
-- [Supabase](https://supabase.com/) (Postgres + RPC)
+- [Neon](https://neon.tech/) (Postgres serverless) vía `@neondatabase/serverless`
 
 ## Arquitectura
 
@@ -15,7 +15,7 @@ Las localidades no son un ENUM fijo: viven en su propia tabla (`localidades`), l
 ```
 init.sql                      # Esquema de base de datos (tablas, enums, RPC)
 types/viasur.ts                # Enums e interfaces del dominio
-lib/supabase/server.ts         # Cliente Supabase (server-only, service role)
+lib/db.ts                      # Cliente Neon (server-only, HTTP)
 app/
   page.tsx                     # Landing
   registrar/page.tsx           # Formulario de registro de servicios
@@ -28,10 +28,10 @@ app/
 
 ```bash
 npm install
-cp .env.example .env.local   # completar SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY
+cp .env.example .env.local   # completar DATABASE_URL
 ```
 
-Ejecutar `init.sql` contra la instancia de Supabase (SQL Editor o `psql`) para crear el esquema inicial y las localidades semilla.
+Ejecutar `init.sql` contra la instancia de Neon (SQL Editor del dashboard o `psql "$DATABASE_URL" -f init.sql`) para crear el esquema inicial y las localidades semilla.
 
 ```bash
 npm run dev
@@ -41,5 +41,4 @@ npm run dev
 
 | Variable | Descripción |
 |---|---|
-| `SUPABASE_URL` | URL del proyecto de Supabase |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (uso exclusivo server-side) |
+| `DATABASE_URL` | Connection string pooled de Neon (incluye `sslmode=require`) |
