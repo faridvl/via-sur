@@ -1,0 +1,17 @@
+{
+  "name": "VíaSur",
+  "short_name": "VíaSur",
+  "description": "Directorio de servicios locales del sur de Costa Rica.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f4f5",
+  "theme_color": "#1e3a8a",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

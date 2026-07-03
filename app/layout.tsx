@@ -2,9 +2,31 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import BottomNav from "@/components/BottomNav";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://via-sur.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "VíaSur",
   description: "Directorio de servicios locales del sur de Costa Rica.",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
+  openGraph: {
+    title: "VíaSur",
+    description: "Directorio de servicios locales del sur de Costa Rica.",
+    url: SITE_URL,
+    siteName: "VíaSur",
+    locale: "es_CR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "VíaSur",
+    description: "Directorio de servicios locales del sur de Costa Rica.",
+  },
 };
 
 export const viewport: Viewport = {

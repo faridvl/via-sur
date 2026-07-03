@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="viasur-icon-title">
+  <title id="viasur-icon-title">VíaSur</title>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#312e81" />
+      <stop offset="55%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="mark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#d1fae5" />
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="18%" r="75%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)" />
+  <rect width="512" height="512" rx="112" fill="url(#glow)" />
+
+  <g transform="translate(256 266)">
+    <path
+      d="M -108 -96 L -18 84 Q 0 122 18 84 L 108 -96"
+      fill="none"
+      stroke="url(#mark)"
+      stroke-width="34"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <circle cx="0" cy="108" r="17" fill="url(#mark)" />
+  </g>
+</svg>
