@@ -299,37 +299,39 @@ export default function HomePage() {
               <div className="no-scrollbar -mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-1">
                 {destacados.map((servicio) => {
                   return (
-                    <Link
+                    <div
                       key={servicio.id}
-                      href={`/servicio/${servicio.id}`}
                       className="group block w-[82%] shrink-0 snap-start overflow-hidden rounded-2xl bg-gray-800"
                     >
-                      {/* Imagen protagonista (placeholder con degradado sutil si no hay foto) */}
-                      <div className="relative h-40 w-full bg-gradient-to-br from-gray-700 to-gray-900">
-                        <span className="absolute left-3 top-3 rounded-lg bg-gray-950/70 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wide text-white">
-                          Destacado
-                        </span>
-                      </div>
+                      <Link href={`/servicio/${servicio.id}`}>
+                        {/* Imagen protagonista (placeholder con degradado sutil si no hay foto) */}
+                        <div className="relative h-40 w-full bg-gradient-to-br from-gray-700 to-gray-900">
+                          <span className="absolute left-3 top-3 rounded-lg bg-gray-950/70 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wide text-white">
+                            Destacado
+                          </span>
+                        </div>
 
-                      {/* Info del negocio */}
-                      <div className="flex flex-col gap-2 bg-gray-850 p-4">
-                        <h3 className="text-base font-bold text-white">
-                          {servicio.nombre_servicio}
-                        </h3>
+                        {/* Info del negocio */}
+                        <div className="flex flex-col gap-2 bg-gray-850 p-4 pb-0">
+                          <h3 className="text-base font-bold text-white">
+                            {servicio.nombre_servicio}
+                          </h3>
 
-                        {servicio.descripcion && (
-                          <p className="line-clamp-2 text-sm text-gray-400">
-                            {servicio.descripcion}
-                          </p>
-                        )}
+                          {servicio.descripcion && (
+                            <p className="line-clamp-2 text-sm text-gray-400">
+                              {servicio.descripcion}
+                            </p>
+                          )}
+                        </div>
+                      </Link>
 
-                        {servicio.whatsapp && (
+                      {servicio.whatsapp && (
+                        <div className="bg-gray-850 p-4 pt-2">
                           <a
                             href={`https://wa.me/${normalizarWhatsapp(servicio.whatsapp)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="mt-1.5 flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition-transform active:scale-95"
+                            className="flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition-transform active:scale-95"
                           >
                             <svg
                               viewBox="0 0 24 24"
@@ -340,9 +342,9 @@ export default function HomePage() {
                             </svg>
                             WhatsApp
                           </a>
-                        )}
-                      </div>
-                    </Link>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
@@ -355,36 +357,36 @@ export default function HomePage() {
                 Servicios
               </h2>
               {regulares.map((servicio) => (
-                <Link
+                <div
                   key={servicio.id}
-                  href={`/servicio/${servicio.id}`}
                   className="flex flex-col gap-2 rounded-xl bg-gray-800 p-4 transition-transform active:scale-[0.98]"
                 >
-                  <h3 className="text-sm font-bold tracking-tight text-white">
-                    {servicio.nombre_servicio}
-                  </h3>
-                  {servicio.descripcion && (
-                    <p className="text-xs leading-relaxed text-gray-400">
-                      {servicio.descripcion}
-                    </p>
-                  )}
-                  {servicio.direccion_exacta && (
-                    <p className="text-[11px] font-medium text-gray-500">
-                      📍 {servicio.direccion_exacta}
-                    </p>
-                  )}
+                  <Link href={`/servicio/${servicio.id}`} className="flex flex-col gap-2">
+                    <h3 className="text-sm font-bold tracking-tight text-white">
+                      {servicio.nombre_servicio}
+                    </h3>
+                    {servicio.descripcion && (
+                      <p className="text-xs leading-relaxed text-gray-400">
+                        {servicio.descripcion}
+                      </p>
+                    )}
+                    {servicio.direccion_exacta && (
+                      <p className="text-[11px] font-medium text-gray-500">
+                        📍 {servicio.direccion_exacta}
+                      </p>
+                    )}
+                  </Link>
                   {servicio.whatsapp && (
                     <a
                       href={`https://wa.me/${normalizarWhatsapp(servicio.whatsapp)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
                       className="mt-1 self-start rounded-xl border border-gray-700 px-3.5 py-2 text-xs font-semibold text-gray-300 transition-transform active:scale-95"
                     >
                       WhatsApp
                     </a>
                   )}
-                </Link>
+                </div>
               ))}
             </div>
           )}
