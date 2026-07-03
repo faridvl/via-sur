@@ -12,27 +12,23 @@ export enum TipoCobertura {
 }
 
 /**
- * Categoría de un servicio.
- * Coincide 1:1 con el ENUM `categoria_servicio` de la base de datos.
- */
-export enum CategoriaServicio {
-  Comida = "Comida",
-  Barberia = "Barberia",
-  Transporte = "Transporte",
-  Express = "Express",
-  Salud = "Salud",
-  Shows = "Shows",
-  Comercio = "Comercio",
-  Otros = "Otros",
-}
-
-/**
  * Localidad normalizada (tabla `localidades`).
  * Reemplaza al antiguo ENUM rígido para permitir altas/bajas dinámicas.
  */
 export interface Localidad {
   id: number;
   nombre: string;
+  activa: boolean;
+}
+
+/**
+ * Categoría de servicio normalizada (tabla `categorias`).
+ * Reemplaza al antiguo ENUM rígido para permitir altas/bajas dinámicas.
+ */
+export interface Categoria {
+  id: number;
+  nombre: string;
+  icono: string | null;
   activa: boolean;
 }
 
@@ -53,7 +49,7 @@ export interface ServicioLocal {
   id: string;
   usuario_id: string | null;
   nombre_servicio: string;
-  tipo_categoria: CategoriaServicio;
+  categoria_id: number;
   localidad_id: number;
   cobertura: TipoCobertura;
   direccion_exacta: string | null;
@@ -65,11 +61,12 @@ export interface ServicioLocal {
 
 /**
  * Payload del formulario de registro de un nuevo servicio.
- * `localidad_id` es numérico: referencia directa a `localidades.id`.
+ * `localidad_id` y `categoria_id` son numéricos: referencian
+ * directamente a `localidades.id` y `categorias.id`.
  */
 export interface FormRegistroServicio {
   nombre_servicio: string;
-  tipo_categoria: CategoriaServicio;
+  categoria_id: number;
   localidad_id: number;
   cobertura: TipoCobertura;
   direccion_exacta: string;
@@ -84,3 +81,17 @@ export interface FormRegistroServicio {
 export interface CrearServicioPayload extends FormRegistroServicio {
   usuario_id?: string;
 }
+
+/**
+ * Body esperado por PATCH /api/servicios (edición de un servicio propio).
+ */
+export interface EditarServicioPayload extends CrearServicioPayload {
+  id: string;
+  usuario_id: string;
+}
+
+/**
+ * Usuario de prueba fijo (fase sin autenticación real). Simula la sesión
+ * activa en el panel "Mis Servicios".
+ */
+export const USUARIO_ACTUAL_ID = "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d";
