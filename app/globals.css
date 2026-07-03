@@ -13,16 +13,3 @@
   }
 }
 
-@keyframes brillo-destacado {
-  0%,
-  100% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.animate-brillo {
-  animation: brillo-destacado 2.8s ease-in-out infinite;
-}

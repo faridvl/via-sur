@@ -2,41 +2,43 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Home, Search, Store } from "lucide-react";
 
 const ITEMS = [
-  { href: "/", etiqueta: "Inicio", icono: "🏠" },
-  { href: "/buscar", etiqueta: "Buscar", icono: "🔍" },
-  { href: "/mis-servicios", etiqueta: "Mis Servicios", icono: "🏪" },
+  { href: "/", etiqueta: "Inicio", Icono: Home },
+  { href: "/buscar", etiqueta: "Buscar", Icono: Search },
+  { href: "/mis-servicios", etiqueta: "Mis Servicios", Icono: Store },
 ] as const;
 
 export default function BottomNav() {
   const pathname = usePathname();
 
+  if (pathname.startsWith("/servicio/")) {
+    return null;
+  }
+
   return (
-    <nav className="flex shrink-0 border-t border-zinc-200 bg-white/90 backdrop-blur-md sm:rounded-b-[2.5rem]">
-      {ITEMS.map((item) => {
-        const activo =
-          item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-around border-t border-gray-800 bg-gray-900/95 backdrop-blur-md">
+      {ITEMS.map(({ href, etiqueta, Icono }) => {
+        const activo = href === "/" ? pathname === "/" : pathname.startsWith(href);
 
         return (
           <Link
-            key={item.href}
-            href={item.href}
-            className="flex flex-1 flex-col items-center gap-0.5 py-2.5 transition-transform active:scale-95"
+            key={href}
+            href={href}
+            className="flex flex-1 flex-col items-center gap-1 py-4 transition-transform active:scale-95"
           >
+            <Icono
+              className={activo ? "text-white" : "text-gray-500"}
+              size={22}
+              strokeWidth={1.75}
+            />
             <span
-              className={`text-xl transition-opacity ${
-                activo ? "opacity-100" : "opacity-50"
+              className={`text-[10px] font-medium tracking-tight ${
+                activo ? "text-white" : "text-gray-500"
               }`}
             >
-              {item.icono}
-            </span>
-            <span
-              className={`text-[10px] font-semibold tracking-tight ${
-                activo ? "text-indigo-600" : "text-zinc-400"
-              }`}
-            >
-              {item.etiqueta}
+              {etiqueta}
             </span>
           </Link>
         );

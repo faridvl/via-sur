@@ -94,18 +94,18 @@ export default function BuscarPage() {
       <button
         type="button"
         onClick={() => router.back()}
-        className="flex w-fit items-center gap-1.5 rounded-full bg-zinc-100 px-3.5 py-2 text-xs font-semibold text-zinc-600 transition-transform active:scale-95"
+        className="flex w-fit items-center gap-1.5 rounded-full bg-gray-800 px-3.5 py-2 text-xs font-semibold text-gray-300 transition-transform active:scale-95"
       >
         ← Volver
       </button>
 
       <header className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+        <h1 className="text-2xl font-bold tracking-tight text-white">
           Buscar
         </h1>
 
         <div className="relative">
-          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
             🔍
           </span>
           <input
@@ -114,34 +114,34 @@ export default function BuscarPage() {
             onChange={(e) => setTexto(e.target.value)}
             placeholder="Buscá un negocio por nombre…"
             autoFocus
-            className="w-full rounded-2xl border border-zinc-200 bg-white py-3.5 pl-11 pr-4 text-sm text-zinc-900 outline-none focus:border-indigo-600"
+            className="w-full rounded-xl border border-gray-700 bg-gray-800 py-3.5 pl-11 pr-4 text-sm text-white outline-none placeholder:text-gray-500 focus:border-gray-500"
           />
         </div>
       </header>
 
       {estado === "idle" && (
-        <p className="text-center text-sm font-medium text-zinc-400">
+        <p className="text-center text-sm font-medium text-gray-500">
           Escribí al menos 2 letras para empezar a buscar.
         </p>
       )}
 
       {estado === "cargando" && (
         <div className="flex flex-col items-center gap-2 py-10">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-200 border-t-indigo-600" />
-          <p className="text-sm font-medium text-zinc-400">Buscando…</p>
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-700 border-t-emerald-400" />
+          <p className="text-sm font-medium text-gray-500">Buscando…</p>
         </div>
       )}
 
       {estado === "error" && (
-        <p className="text-center text-sm font-medium text-red-500">
+        <p className="text-center text-sm font-medium text-red-400">
           No se pudo completar la búsqueda.
         </p>
       )}
 
       {estado === "listo" && resultados.length === 0 && (
-        <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-zinc-300 bg-white/60 px-6 py-12 text-center">
+        <div className="flex flex-col items-center gap-2 rounded-xl bg-gray-800/60 px-6 py-12 text-center">
           <span className="text-3xl">🔎</span>
-          <p className="text-sm font-semibold text-zinc-700">
+          <p className="text-sm font-semibold text-gray-200">
             No encontramos negocios con ese nombre.
           </p>
         </div>
@@ -161,23 +161,19 @@ export default function BuscarPage() {
               <Link
                 key={servicio.id}
                 href={`/servicio/${servicio.id}`}
-                className={`flex flex-col gap-1.5 rounded-2xl border p-4 transition-transform active:scale-[0.98] ${
-                  servicio.es_destacado
-                    ? "border-amber-300/70 bg-gradient-to-br from-amber-50 via-white to-white"
-                    : "border-zinc-200/80 bg-white"
-                }`}
+                className="flex flex-col gap-1.5 rounded-xl bg-gray-800 p-4 transition-transform active:scale-[0.98]"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-sm font-bold tracking-tight text-zinc-900">
+                  <h3 className="text-sm font-bold tracking-tight text-white">
                     {servicio.nombre_servicio}
                   </h3>
                   {servicio.es_destacado && (
-                    <span className="shrink-0 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-sm">
-                      ✦ Destacado
+                    <span className="shrink-0 rounded-md bg-gray-700 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-gray-300">
+                      Destacado
                     </span>
                   )}
                 </div>
-                <p className="text-xs font-medium text-zinc-400">
+                <p className="text-xs font-medium text-gray-500">
                   {categoria?.icono} {categoria?.nombre} · {localidad?.nombre}
                 </p>
                 {servicio.whatsapp && (
@@ -186,7 +182,7 @@ export default function BuscarPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="mt-1 self-start rounded-xl border border-zinc-200 px-3.5 py-2 text-xs font-semibold text-zinc-600 transition-transform active:scale-95"
+                    className="mt-1 self-start rounded-xl border border-gray-700 px-3.5 py-2 text-xs font-semibold text-gray-300 transition-transform active:scale-95"
                   >
                     WhatsApp
                   </a>
