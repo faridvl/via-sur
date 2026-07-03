@@ -20,9 +20,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className="min-h-screen bg-zinc-100 antialiased sm:bg-[radial-gradient(circle_at_top,_theme(colors.zinc.200),_theme(colors.zinc.100))]">
-        <div className="mx-auto flex min-h-screen w-full max-w-md flex-col overflow-hidden bg-zinc-50 sm:my-6 sm:min-h-0 sm:max-w-lg sm:rounded-[2.5rem] sm:shadow-2xl sm:ring-1 sm:ring-zinc-200/80">
-          <div className="flex-1 overflow-y-auto">{children}</div>
+      <body className="h-dvh overflow-hidden bg-zinc-100 antialiased sm:bg-[radial-gradient(circle_at_top,_theme(colors.zinc.200),_theme(colors.zinc.100))]">
+        <div className="mx-auto flex h-dvh w-full max-w-md flex-col overflow-hidden bg-zinc-50 sm:my-6 sm:h-[calc(100dvh-3rem)] sm:max-w-lg sm:rounded-[2.5rem] sm:shadow-2xl sm:ring-1 sm:ring-zinc-200/80">
+          <div className="flex-1 overflow-y-auto overscroll-contain">
+            {children}
+          </div>
           <BottomNav />
         </div>
       </body>
