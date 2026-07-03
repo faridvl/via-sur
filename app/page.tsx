@@ -56,8 +56,15 @@ export default function HomePage() {
 
         if (localidadValida) {
           setLocalidadId(localidadGuardada);
-        } else if (dataLocalidades.localidades?.length) {
-          setLocalidadId(dataLocalidades.localidades[0].id);
+        } else {
+          const localidadRioClaro = dataLocalidades.localidades?.find(
+            (l) => l.nombre === "Río Claro"
+          );
+          if (localidadRioClaro) {
+            setLocalidadId(localidadRioClaro.id);
+          } else if (dataLocalidades.localidades?.length) {
+            setLocalidadId(dataLocalidades.localidades[0].id);
+          }
         }
 
         const categoriaGuardada = Number(
@@ -69,6 +76,13 @@ export default function HomePage() {
 
         if (categoriaValida) {
           setCategoriaId(categoriaGuardada);
+        } else {
+          const categoriaTaxis = dataCategorias.categorias?.find(
+            (c) => c.nombre === "Taxis y Fletes"
+          );
+          if (categoriaTaxis) {
+            setCategoriaId(categoriaTaxis.id);
+          }
         }
       } catch {
         // Silencioso: los selectores simplemente quedarán vacíos.
