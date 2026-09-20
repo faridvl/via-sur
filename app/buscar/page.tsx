@@ -3,8 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Search, SearchX } from "lucide-react";
 import { Categoria, Localidad, ServicioLocal } from "@/types/viasur";
-import { normalizarWhatsapp } from "@/lib/whatsapp";
+import { iconoDeCategoria } from "@/lib/categoriaIconos";
+import Button from "@/components/Button";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 type EstadoBusqueda = "idle" | "cargando" | "listo" | "error";
 
@@ -91,13 +94,9 @@ export default function BuscarPage() {
 
   return (
     <main className="flex min-h-screen w-full flex-col gap-6 px-5 pb-10 pt-6">
-      <button
-        type="button"
-        onClick={() => router.back()}
-        className="flex w-fit items-center gap-1.5 rounded-full bg-gray-800 px-3.5 py-2 text-xs font-semibold text-gray-300 transition-transform active:scale-95"
-      >
+      <Button variante="pill" onClick={() => router.back()}>
         ← Volver
-      </button>
+      </Button>
 
       <header className="flex flex-col gap-4">
         <h1 className="text-2xl font-bold tracking-tight text-white">
@@ -105,9 +104,12 @@ export default function BuscarPage() {
         </h1>
 
         <div className="relative">
-          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
-            🔍
-          </span>
+          <Search
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+            size={18}
+            strokeWidth={1.75}
+            aria-hidden="true"
+          />
           <input
             type="text"
             value={texto}
@@ -127,7 +129,7 @@ export default function BuscarPage() {
 
       {estado === "cargando" && (
         <div className="flex flex-col items-center gap-2 py-10">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-700 border-t-emerald-400" />
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-700 border-t-primary-400" />
           <p className="text-sm font-medium text-gray-500">Buscando…</p>
         </div>
       )}
@@ -139,8 +141,8 @@ export default function BuscarPage() {
       )}
 
       {estado === "listo" && resultados.length === 0 && (
-        <div className="flex flex-col items-center gap-2 rounded-xl bg-gray-800/60 px-6 py-12 text-center">
-          <span className="text-3xl">🔎</span>
+        <div className="flex flex-col items-center gap-3 rounded-xl bg-gray-800/60 px-6 py-12 text-center">
+          <SearchX className="text-gray-500" size={32} strokeWidth={1.5} />
           <p className="text-sm font-semibold text-gray-200">
             No encontramos negocios con ese nombre.
           </p>
@@ -156,12 +158,15 @@ export default function BuscarPage() {
             const categoria = categorias.find(
               (c) => c.id === servicio.categoria_id
             );
+            const IconoCategoria = categoria
+              ? iconoDeCategoria(categoria.nombre)
+              : Search;
 
             return (
               <Link
                 key={servicio.id}
                 href={`/servicio/${servicio.id}`}
-                className="flex flex-col gap-1.5 rounded-xl bg-gray-800 p-4 transition-transform active:scale-[0.98]"
+                className="flex flex-col gap-1.5 rounded-xl border border-gray-700/60 bg-gray-800 p-4 shadow-md shadow-black/20 transition-transform active:scale-[0.98]"
               >
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="text-sm font-bold tracking-tight text-white">
@@ -173,19 +178,18 @@ export default function BuscarPage() {
                     </span>
                   )}
                 </div>
-                <p className="text-xs font-medium text-gray-500">
-                  {categoria?.icono} {categoria?.nombre} · {localidad?.nombre}
+                <p className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                  <IconoCategoria size={13} strokeWidth={1.75} aria-hidden="true" />
+                  {categoria?.nombre} · {localidad?.nombre}
                 </p>
                 {servicio.whatsapp && (
-                  <a
-                    href={`https://wa.me/${normalizarWhatsapp(servicio.whatsapp)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <WhatsAppButton
+                    numero={servicio.whatsapp}
+                    label="Escribir por WhatsApp"
+                    variante="sutil"
                     onClick={(e) => e.stopPropagation()}
-                    className="mt-1 self-start rounded-xl border border-gray-700 px-3.5 py-2 text-xs font-semibold text-gray-300 transition-transform active:scale-95"
-                  >
-                    WhatsApp
-                  </a>
+                    className="mt-1 self-start px-3.5 py-2 text-xs"
+                  />
                 )}
               </Link>
             );

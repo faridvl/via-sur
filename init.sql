@@ -56,8 +56,38 @@ create table if not exists usuarios (
     id               uuid primary key default gen_random_uuid(),
     nombre_completo  text,
     celular          text,
+    email            text unique,
     created_at       timestamptz not null default now()
 );
+
+-- ---------------------------------------------------------------------
+-- Tabla: enlaces_acceso
+-- ---------------------------------------------------------------------
+-- Magic link de un solo uso para iniciar sesión (login por email).
+-- ---------------------------------------------------------------------
+create table if not exists enlaces_acceso (
+    token       uuid primary key default gen_random_uuid(),
+    email       text not null,
+    expira_en   timestamptz not null,
+    usado       boolean not null default false,
+    created_at  timestamptz not null default now()
+);
+
+create index if not exists idx_enlaces_acceso_email on enlaces_acceso (email);
+
+-- ---------------------------------------------------------------------
+-- Tabla: sesiones
+-- ---------------------------------------------------------------------
+-- Sesión activa de un usuario autenticado (cookie httpOnly + esta tabla).
+-- ---------------------------------------------------------------------
+create table if not exists sesiones (
+    token       uuid primary key default gen_random_uuid(),
+    usuario_id  uuid not null references usuarios(id),
+    expira_en   timestamptz not null,
+    created_at  timestamptz not null default now()
+);
+
+create index if not exists idx_sesiones_usuario_id on sesiones (usuario_id);
 
 -- ---------------------------------------------------------------------
 -- Tipo ENUM: cobertura
@@ -82,6 +112,8 @@ create table if not exists servicios_locales (
     cobertura        tipo_cobertura not null default 'Local',
     direccion_exacta text,
     whatsapp         text,
+    nombre_contacto  text,
+    telefono_alternativo text,
     descripcion      text,
     es_destacado     boolean not null default false,
     created_at       timestamptz not null default now()
@@ -89,6 +121,40 @@ create table if not exists servicios_locales (
 
 create index if not exists idx_servicios_localidad_id on servicios_locales (localidad_id);
 create index if not exists idx_servicios_categoria_id on servicios_locales (categoria_id);
+
+-- ---------------------------------------------------------------------
+-- Tabla: eventos_servicio
+-- ---------------------------------------------------------------------
+-- Tracking anónimo de interacciones en la vista pública de un servicio
+-- (visita al detalle, clic en WhatsApp, clic en llamar). No cuenta las
+-- visitas del propio dueño a su servicio (filtrado en el backend).
+-- ---------------------------------------------------------------------
+create table if not exists eventos_servicio (
+    id           uuid primary key default gen_random_uuid(),
+    servicio_id  uuid not null references servicios_locales(id) on delete cascade,
+    tipo_evento  text not null check (tipo_evento in ('visita', 'contacto', 'llamada')),
+    created_at   timestamptz not null default now()
+);
+
+create index if not exists idx_eventos_servicio_servicio_id
+    on eventos_servicio (servicio_id, tipo_evento);
+
+-- ---------------------------------------------------------------------
+-- Tabla: imagenes_servicio
+-- ---------------------------------------------------------------------
+-- Un servicio puede tener varias fotos, administrables por separado.
+-- La de menor `orden` es la portada mostrada en listados/carrusel.
+-- ---------------------------------------------------------------------
+create table if not exists imagenes_servicio (
+    id           uuid primary key default gen_random_uuid(),
+    servicio_id  uuid not null references servicios_locales(id) on delete cascade,
+    url          text not null,
+    orden        int not null default 0,
+    created_at   timestamptz not null default now()
+);
+
+create index if not exists idx_imagenes_servicio_servicio_id
+    on imagenes_servicio (servicio_id, orden);
 
 -- ---------------------------------------------------------------------
 -- Función RPC: obtener_servicios_por_dia

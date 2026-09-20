@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { MapPin, Waves } from "lucide-react";
 import { Categoria, Localidad, ServicioLocal } from "@/types/viasur";
-import { normalizarWhatsapp } from "@/lib/whatsapp";
 import LocationSelector from "@/components/LocationSelector";
 import { iconoDeCategoria } from "@/lib/categoriaIconos";
+import Button from "@/components/Button";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 type EstadoCarga = "idle" | "cargando" | "listo" | "error";
 
@@ -196,71 +198,93 @@ export default function HomePage() {
   );
 
   const categoriaSeleccionada = categorias.find((c) => c.id === categoriaId);
+  const localidadActual = localidades.find((l) => l.id === localidadId);
 
   return (
     <main className="flex min-h-screen w-full flex-col gap-5 px-5 pb-10 pt-6">
-      {/* Header compacto */}
-      <header className="flex items-center justify-between gap-3">
-        <h1 className="text-xl font-bold tracking-tight text-white">
-          VíaSur
-        </h1>
+      {/* Header con isotipo + contexto dinámico de la localidad activa */}
+      <header className="flex flex-col gap-1">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-500/15">
+              <Waves className="text-primary-400" size={16} strokeWidth={2} aria-hidden="true" />
+            </span>
+            <h1 className="text-xl font-bold tracking-tight text-white">
+              VíaSur
+            </h1>
+          </div>
 
-        <LocationSelector
-          localidades={localidades}
-          localidadId={localidadId}
-          onSeleccionar={setLocalidadId}
-        />
+          <LocationSelector
+            localidades={localidades}
+            localidadId={localidadId}
+            onSeleccionar={setLocalidadId}
+          />
+        </div>
+
+        <p className="pl-10 text-xs font-medium text-gray-500">
+          {localidadActual
+            ? `Servicios en ${localidadActual.nombre}`
+            : "Servicios del Pacífico Sur"}
+        </p>
       </header>
 
-      {/* Categorías — carrusel horizontal de burbujas */}
-      <section className="no-scrollbar -mx-5 flex snap-x gap-5 overflow-x-auto px-5 pb-1">
-        {categorias.map((categoria) => {
-          const seleccionada = categoria.id === categoriaId;
-          const Icono = iconoDeCategoria(categoria.nombre);
+      {/* Categorías — carrusel horizontal de burbujas, con indicador de scroll */}
+      <div className="relative -mx-5">
+        <section className="no-scrollbar flex snap-x gap-5 overflow-x-auto px-5 pb-1">
+          {categorias.map((categoria) => {
+            const seleccionada = categoria.id === categoriaId;
+            const Icono = iconoDeCategoria(categoria.nombre);
 
-          return (
-            <button
-              key={categoria.id}
-              ref={(el) => {
-                if (el) {
-                  categoriaBotonRef.current.set(categoria.id, el);
-                } else {
-                  categoriaBotonRef.current.delete(categoria.id);
+            return (
+              <button
+                key={categoria.id}
+                ref={(el) => {
+                  if (el) {
+                    categoriaBotonRef.current.set(categoria.id, el);
+                  } else {
+                    categoriaBotonRef.current.delete(categoria.id);
+                  }
+                }}
+                type="button"
+                onClick={() =>
+                  setCategoriaId(seleccionada ? null : categoria.id)
                 }
-              }}
-              type="button"
-              onClick={() =>
-                setCategoriaId(seleccionada ? null : categoria.id)
-              }
-              aria-pressed={seleccionada}
-              className="flex shrink-0 snap-start flex-col items-center gap-1.5 transition-transform active:scale-95"
-            >
-              <span
-                className={`flex h-16 w-16 items-center justify-center rounded-full transition-colors ${
-                  seleccionada ? "bg-gray-700" : "bg-gray-800/80"
-                }`}
+                aria-pressed={seleccionada}
+                className="flex shrink-0 snap-start flex-col items-center gap-1.5 p-1.5 transition-transform active:scale-95"
               >
-                <Icono
-                  className={seleccionada ? "text-white" : "text-gray-400"}
-                  size={26}
-                  strokeWidth={1.5}
-                  aria-hidden="true"
-                />
-              </span>
-              <span className="text-xs font-medium leading-tight text-white">
-                {categoria.nombre}
-              </span>
-            </button>
-          );
-        })}
-      </section>
+                <span
+                  className={`flex h-16 w-16 items-center justify-center rounded-full transition-colors ${
+                    seleccionada ? "bg-gray-700" : "bg-gray-800/80"
+                  }`}
+                >
+                  <Icono
+                    className={seleccionada ? "text-white" : "text-gray-400"}
+                    size={26}
+                    strokeWidth={1.5}
+                    aria-hidden="true"
+                  />
+                </span>
+                <span className="text-xs font-medium leading-tight text-white">
+                  {categoria.nombre}
+                </span>
+              </button>
+            );
+          })}
+        </section>
+
+        {/* Fade derecho: indica que hay más categorías fuera de pantalla */}
+        <div
+          className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-gray-950 to-transparent"
+          aria-hidden="true"
+        />
+      </div>
 
       {/* Resultados */}
       {categoriaId && (
         <section className="mt-3 flex flex-col gap-8">
           {estadoServicios === "cargando" && (
             <div className="flex flex-col items-center gap-2 py-10">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-700 border-t-emerald-400" />
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-700 border-t-primary-400" />
               <p className="text-sm font-medium text-gray-400">
                 Buscando servicios…
               </p>
@@ -298,7 +322,7 @@ export default function HomePage() {
               </p>
               <Link
                 href="/mis-servicios"
-                className="mt-1 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
+                className="mt-1 rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
               >
                 Sé el primero en registrarte
               </Link>
@@ -315,7 +339,7 @@ export default function HomePage() {
                   return (
                     <div
                       key={servicio.id}
-                      className="group block w-[82%] shrink-0 snap-start overflow-hidden rounded-2xl bg-gray-800"
+                      className="group block w-[82%] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-700/60 bg-gray-800 shadow-lg shadow-black/20"
                     >
                       <Link href={`/servicio/${servicio.id}`}>
                         {/* Imagen protagonista (placeholder con degradado sutil si no hay foto) */}
@@ -341,21 +365,12 @@ export default function HomePage() {
 
                       {servicio.whatsapp && (
                         <div className="bg-gray-850 p-4 pt-2">
-                          <a
-                            href={`https://wa.me/${normalizarWhatsapp(servicio.whatsapp)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition-transform active:scale-95"
-                          >
-                            <svg
-                              viewBox="0 0 24 24"
-                              className="h-4 w-4 fill-current"
-                              aria-hidden="true"
-                            >
-                              <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.87 9.87 0 0 0 12.04 2zm5.8 14.15c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.12.11-1.8-.11-.42-.13-.95-.31-1.64-.6-2.88-1.24-4.76-4.13-4.9-4.32-.14-.19-1.18-1.57-1.18-3 0-1.42.75-2.12 1.02-2.41.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.65.5.24.58.82 2.01.89 2.16.07.15.12.32.02.51-.09.19-.14.31-.28.48-.14.16-.29.36-.42.49-.14.14-.28.28-.12.56.16.28.71 1.17 1.53 1.89 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.68-.79.87-1.06.18-.27.36-.22.6-.13.24.09 1.53.72 1.79.85.26.13.43.19.5.3.06.11.06.62-.18 1.3z" />
-                            </svg>
-                            WhatsApp
-                          </a>
+                          <WhatsAppButton
+                            numero={servicio.whatsapp}
+                            label="Escribir por WhatsApp"
+                            variante="sutil"
+                            className="w-full px-3.5 py-2.5 text-xs"
+                          />
                         </div>
                       )}
                     </div>
@@ -373,7 +388,7 @@ export default function HomePage() {
               {regulares.map((servicio) => (
                 <div
                   key={servicio.id}
-                  className="flex flex-col gap-2 rounded-xl bg-gray-800 p-4 transition-transform active:scale-[0.98]"
+                  className="flex flex-col gap-2 rounded-xl border border-gray-700/60 bg-gray-800 p-4 shadow-md shadow-black/20 transition-transform active:scale-[0.98]"
                 >
                   <Link href={`/servicio/${servicio.id}`} className="flex flex-col gap-2">
                     <h3 className="text-sm font-bold tracking-tight text-white">
@@ -385,20 +400,19 @@ export default function HomePage() {
                       </p>
                     )}
                     {servicio.direccion_exacta && (
-                      <p className="text-[11px] font-medium text-gray-500">
-                        📍 {servicio.direccion_exacta}
+                      <p className="flex items-center gap-1 text-[11px] font-medium text-gray-500">
+                        <MapPin size={12} strokeWidth={1.75} aria-hidden="true" />
+                        {servicio.direccion_exacta}
                       </p>
                     )}
                   </Link>
                   {servicio.whatsapp && (
-                    <a
-                      href={`https://wa.me/${normalizarWhatsapp(servicio.whatsapp)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-1 self-start rounded-xl border border-gray-700 px-3.5 py-2 text-xs font-semibold text-gray-300 transition-transform active:scale-95"
-                    >
-                      WhatsApp
-                    </a>
+                    <WhatsAppButton
+                      numero={servicio.whatsapp}
+                      label="Escribir por WhatsApp"
+                      variante="sutil"
+                      className="mt-1 self-start px-3.5 py-2 text-xs"
+                    />
                   )}
                 </div>
               ))}

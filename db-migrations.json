@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "environments": {
+    "dev": {
+      "applied": [
+        {
+          "name": "001-update_and_seed.sql",
+          "version": "001",
+          "checksum": "e83d57dc4e495716",
+          "appliedAt": "2026-09-20T20:46:45.037Z",
+          "appliedBy": "Farid",
+          "baseline": true
+        },
+        {
+          "name": "002-migrar_categoria_id.sql",
+          "version": "002",
+          "checksum": "40c02c5af9286992",
+          "appliedAt": "2026-09-20T20:46:45.038Z",
+          "appliedBy": "Farid",
+          "baseline": true
+        },
+        {
+          "name": "003-seed_produccion.sql",
+          "version": "003",
+          "checksum": "b42919777579d491",
+          "appliedAt": "2026-09-20T20:46:45.050Z",
+          "appliedBy": "Farid",
+          "baseline": true
+        },
+        {
+          "name": "004-rio_claro_todas_categorias.sql",
+          "version": "004",
+          "checksum": "ac0fa77ed20b6eba",
+          "appliedAt": "2026-09-20T20:46:45.050Z",
+          "appliedBy": "Farid",
+          "baseline": true
+        },
+        {
+          "name": "005-taxis_roberto_camacho.sql",
+          "version": "005",
+          "checksum": "01ba4719c80b6fe9",
+          "appliedAt": "2026-09-20T20:46:45.051Z",
+          "appliedBy": "Farid",
+          "baseline": true
+        },
+        {
+          "name": "006-autenticacion_magic_link.sql",
+          "version": "006",
+          "checksum": "59e9ebe7b9ab19e9",
+          "appliedAt": "2026-09-20T20:47:01.181Z",
+          "appliedBy": "Farid"
+        },
+        {
+          "name": "007-contacto_servicios.sql",
+          "version": "007",
+          "checksum": "15ff4d4fe2a9a33c",
+          "appliedAt": "2026-09-20T21:26:49.626Z",
+          "appliedBy": "Farid"
+        },
+        {
+          "name": "008-imagenes_y_analytics.sql",
+          "version": "008",
+          "checksum": "8433b6fbb3a13d7e",
+          "appliedAt": "2026-09-20T21:57:25.898Z",
+          "appliedBy": "Farid"
+        },
+        {
+          "name": "009-multiples_imagenes.sql",
+          "version": "009",
+          "checksum": "df10b6f758bde642",
+          "appliedAt": "2026-09-20T22:02:37.403Z",
+          "appliedBy": "Farid"
+        }
+      ]
+    }
+  }
+}

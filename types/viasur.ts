@@ -39,6 +39,7 @@ export interface Usuario {
   id: string;
   nombre_completo: string | null;
   celular: string | null;
+  email: string | null;
   created_at: string;
 }
 
@@ -54,9 +55,34 @@ export interface ServicioLocal {
   cobertura: TipoCobertura;
   direccion_exacta: string | null;
   whatsapp: string | null;
+  nombre_contacto: string | null;
+  telefono_alternativo: string | null;
   descripcion: string | null;
   es_destacado: boolean;
   created_at: string;
+}
+
+/**
+ * Foto de un servicio (tabla `imagenes_servicio`). Un servicio puede
+ * tener varias; la de menor `orden` es la portada.
+ */
+export interface ImagenServicio {
+  id: string;
+  servicio_id: string;
+  url: string;
+  orden: number;
+  created_at: string;
+}
+
+/**
+ * Conteo agregado de interacciones anónimas con un servicio (tabla
+ * `eventos_servicio`), usado solo en el panel "Mis Servicios". No
+ * incluye las visitas del propio dueño a su servicio.
+ */
+export interface EstadisticasServicio {
+  visitas: number;
+  contactos: number;
+  llamadas: number;
 }
 
 /**
@@ -71,6 +97,8 @@ export interface FormRegistroServicio {
   cobertura: TipoCobertura;
   direccion_exacta: string;
   whatsapp: string;
+  nombre_contacto: string;
+  telefono_alternativo: string;
   descripcion: string;
 }
 
@@ -91,7 +119,16 @@ export interface EditarServicioPayload extends CrearServicioPayload {
 }
 
 /**
- * Usuario de prueba fijo (fase sin autenticación real). Simula la sesión
- * activa en el panel "Mis Servicios".
+ * Duración de una sesión activa tras iniciar sesión con el enlace mágico.
  */
-export const USUARIO_ACTUAL_ID = "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d";
+export const SESION_DURACION_MS = 30 * 24 * 60 * 60 * 1000; // 30 días
+
+/**
+ * Duración de validez de un enlace de acceso (magic link) antes de expirar.
+ */
+export const ENLACE_ACCESO_DURACION_MS = 15 * 60 * 1000; // 15 minutos
+
+/**
+ * Nombre de la cookie httpOnly que guarda el token de sesión.
+ */
+export const COOKIE_SESION = "viasur_sesion";

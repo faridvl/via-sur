@@ -46,7 +46,7 @@ export default function LocationSelector({
             : "border-gray-800 bg-gray-900 text-gray-200"
         }`}
       >
-        <MapPin size={14} strokeWidth={2} className="shrink-0 text-emerald-400" />
+        <MapPin size={14} strokeWidth={2} className="shrink-0 text-primary-400" />
         <span className="max-w-[6.5rem] truncate">
           {actual?.nombre ?? "Ubicación"}
         </span>
@@ -97,7 +97,7 @@ export default function LocationSelector({
                 >
                   {localidad.nombre}
                   {seleccionada && (
-                    <Check size={16} strokeWidth={2.5} className="text-emerald-400" />
+                    <Check size={16} strokeWidth={2.5} className="text-primary-400" />
                   )}
                 </button>
               );

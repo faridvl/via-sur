@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, MapPin, Search } from "lucide-react";
-import { Categoria, Localidad, ServicioLocal } from "@/types/viasur";
-import { normalizarWhatsapp } from "@/lib/whatsapp";
+import { ArrowLeft, MapPin, Search, User } from "lucide-react";
+import { Categoria, ImagenServicio, Localidad, ServicioLocal } from "@/types/viasur";
 import { iconoDeCategoria } from "@/lib/categoriaIconos";
+import { registrarEvento } from "@/lib/eventos";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import LlamarButton from "@/components/LlamarButton";
 
 type EstadoCarga = "cargando" | "listo" | "no-encontrado" | "error";
 
@@ -17,7 +19,9 @@ export default function DetalleServicioPage() {
   const [servicio, setServicio] = useState<ServicioLocal | null>(null);
   const [localidades, setLocalidades] = useState<Localidad[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [imagenes, setImagenes] = useState<ImagenServicio[]>([]);
   const [estado, setEstado] = useState<EstadoCarga>("cargando");
+  const visitaRegistrada = useRef(false);
 
   useEffect(() => {
     let cancelado = false;
@@ -26,11 +30,12 @@ export default function DetalleServicioPage() {
       setEstado("cargando");
 
       try {
-        const [resServicio, resLocalidades, resCategorias] =
+        const [resServicio, resLocalidades, resCategorias, resImagenes] =
           await Promise.all([
             fetch(`/api/servicios/${params.id}`),
             fetch("/api/localidades"),
             fetch("/api/categorias"),
+            fetch(`/api/servicios/${params.id}/imagenes`),
           ]);
 
         if (resServicio.status === 404) {
@@ -48,11 +53,15 @@ export default function DetalleServicioPage() {
           await resLocalidades.json();
         const dataCategorias: { categorias: Categoria[] } =
           await resCategorias.json();
+        const dataImagenes: { imagenes: ImagenServicio[] } = resImagenes.ok
+          ? await resImagenes.json()
+          : { imagenes: [] };
 
         if (!cancelado) {
           setServicio(dataServicio.servicio);
           setLocalidades(dataLocalidades.localidades ?? []);
           setCategorias(dataCategorias.categorias ?? []);
+          setImagenes(dataImagenes.imagenes ?? []);
           setEstado("listo");
         }
       } catch {
@@ -71,6 +80,13 @@ export default function DetalleServicioPage() {
     };
   }, [params.id]);
 
+  useEffect(() => {
+    if (estado === "listo" && servicio && !visitaRegistrada.current) {
+      visitaRegistrada.current = true;
+      registrarEvento(servicio.id, "visita");
+    }
+  }, [estado, servicio]);
+
   const localidad = localidades.find((l) => l.id === servicio?.localidad_id);
   const categoria = categorias.find((c) => c.id === servicio?.categoria_id);
   const IconoCategoria = categoria ? iconoDeCategoria(categoria.nombre) : Search;
@@ -88,7 +104,7 @@ export default function DetalleServicioPage() {
 
       {estado === "cargando" && (
         <div className="flex flex-col items-center gap-2 py-16">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-700 border-t-emerald-400" />
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-700 border-t-primary-400" />
           <p className="text-sm font-medium text-gray-500">Cargando…</p>
         </div>
       )}
@@ -107,7 +123,7 @@ export default function DetalleServicioPage() {
           </p>
           <Link
             href="/"
-            className="mt-1 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
+            className="mt-1 rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
           >
             Volver al inicio
           </Link>
@@ -116,17 +132,31 @@ export default function DetalleServicioPage() {
 
       {estado === "listo" && servicio && (
         <div className="flex flex-col pb-32">
-          {/* Cabecera: imagen protagonista del negocio (placeholder por categoría) */}
-          <div className="relative flex h-56 w-full shrink-0 items-center justify-center bg-gradient-to-br from-gray-800 to-gray-950">
-            <IconoCategoria
-              className="text-gray-600"
-              size={64}
-              strokeWidth={1.25}
-              aria-hidden="true"
-            />
+          {/* Cabecera: carrusel de fotos reales del negocio, o ícono de categoría como fallback */}
+          <div className="relative h-56 w-full shrink-0">
+            {imagenes.length > 0 ? (
+              <div className="no-scrollbar flex h-full w-full snap-x snap-mandatory overflow-x-auto">
+                {imagenes.map((imagen) => (
+                  <div
+                    key={imagen.id}
+                    className="h-full w-full shrink-0 snap-start bg-cover bg-center"
+                    style={{ backgroundImage: `url(${imagen.url})` }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-800 to-gray-950">
+                <IconoCategoria
+                  className="text-gray-600"
+                  size={64}
+                  strokeWidth={1.25}
+                  aria-hidden="true"
+                />
+              </div>
+            )}
 
             {servicio.es_destacado && (
-              <span className="absolute right-4 top-4 rounded-md bg-gray-950/70 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wide text-white backdrop-blur-sm">
+              <span className="pointer-events-none absolute right-4 top-4 rounded-md bg-gray-950/70 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wide text-white backdrop-blur-sm">
                 Destacado
               </span>
             )}
@@ -176,27 +206,45 @@ export default function DetalleServicioPage() {
                   {servicio.cobertura}
                 </p>
               </div>
+
+              {servicio.nombre_contacto && (
+                <div className="flex items-start gap-3">
+                  <User
+                    className="mt-0.5 shrink-0 text-gray-500"
+                    size={18}
+                    strokeWidth={1.75}
+                  />
+                  <div className="flex flex-col gap-0.5">
+                    <p className="text-[10.5px] font-bold uppercase tracking-widest text-gray-500">
+                      Contacto
+                    </p>
+                    <p className="text-sm font-medium text-gray-200">
+                      {servicio.nombre_contacto}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Contacto: card fija en la parte inferior, alto impacto */}
-          {servicio.whatsapp && (
-            <div className="fixed inset-x-0 bottom-0 z-10 mx-auto w-full max-w-md border-t border-gray-800 bg-gray-950/95 px-5 py-4 backdrop-blur-md sm:max-w-lg">
-              <a
-                href={`https://wa.me/${normalizarWhatsapp(servicio.whatsapp)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-4 text-sm font-bold text-white transition-transform active:scale-95"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  className="h-4 w-4 fill-current"
-                  aria-hidden="true"
-                >
-                  <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.87 9.87 0 0 0 12.04 2zm5.8 14.15c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.12.11-1.8-.11-.42-.13-.95-.31-1.64-.6-2.88-1.24-4.76-4.13-4.9-4.32-.14-.19-1.18-1.57-1.18-3 0-1.42.75-2.12 1.02-2.41.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.65.5.24.58.82 2.01.89 2.16.07.15.12.32.02.51-.09.19-.14.31-.28.48-.14.16-.29.36-.42.49-.14.14-.28.28-.12.56.16.28.71 1.17 1.53 1.89 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.68-.79.87-1.06.18-.27.36-.22.6-.13.24.09 1.53.72 1.79.85.26.13.43.19.5.3.06.11.06.62-.18 1.3z" />
-                </svg>
-                Escribir por WhatsApp
-              </a>
+          {(servicio.whatsapp || servicio.telefono_alternativo) && (
+            <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-md gap-2 border-t border-gray-800 bg-gray-950/95 px-5 py-4 backdrop-blur-md sm:max-w-lg">
+              {servicio.whatsapp && (
+                <WhatsAppButton
+                  numero={servicio.whatsapp}
+                  label="Escribir por WhatsApp"
+                  onClick={() => registrarEvento(servicio.id, "contacto")}
+                  className="flex-[2] px-4 py-4 text-sm font-bold"
+                />
+              )}
+              {servicio.telefono_alternativo && (
+                <LlamarButton
+                  numero={servicio.telefono_alternativo}
+                  onClick={() => registrarEvento(servicio.id, "llamada")}
+                  className="flex-1 px-4 py-4 text-sm font-bold"
+                />
+              )}
             </div>
           )}
         </div>
