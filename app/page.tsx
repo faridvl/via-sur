@@ -213,12 +213,16 @@ export default function HomePage() {
 
   return (
     <main className="flex min-h-screen w-full flex-col pb-10">
-      {/* Header hero: fondo de paisaje detrás de marca, ubicación y buscador */}
+      {/* Header hero: misma foto de fondo que /login (bahía de Uvita) detrás de marca, ubicación y buscador */}
       <header className="relative overflow-hidden px-5 pb-5 pt-6">
-        <FondoMontanas className="absolute inset-0 h-full w-full" />
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-950/10 via-gray-950/40 to-gray-950" />
+        <div
+          className="absolute inset-0 h-48 w-full bg-cover bg-center"
+          style={{ backgroundImage: "url(/login-fondo-uvita.jpg)" }}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 h-48 bg-gradient-to-b from-gray-950/10 via-gray-950/40 to-gray-950" />
 
-        <div className="relative flex flex-col gap-4">
+        <div className="relative flex flex-col gap-4 pt-2">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <LogoViaSur className="text-primary-400" size={30} />
