@@ -373,18 +373,12 @@ export default function HomePage() {
                     return (
                       <div
                         key={servicio.id}
-                        className="group block w-[82%] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-700/60 bg-gray-800 shadow-lg shadow-black/20"
+                        className="group block w-[85%] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-700/70 bg-gray-800 shadow-xl shadow-black/30"
                       >
                         <div className="relative">
-                          <FavoritoBoton
-                            servicioId={servicio.id}
-                            className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gray-950/70 backdrop-blur-sm"
-                            size={16}
-                          />
-
                           <Link href={`/servicio/${servicio.id}`}>
                             <div
-                              className="relative h-40 w-full overflow-hidden bg-gray-900 bg-cover bg-center"
+                              className="relative h-48 w-full overflow-hidden bg-gray-900 bg-cover bg-center"
                               style={
                                 portada
                                   ? { backgroundImage: `url(${portada.url})` }
@@ -399,32 +393,40 @@ export default function HomePage() {
                                 Destacado
                               </span>
                             </div>
-
-                            {/* Info del negocio */}
-                            <div className="flex flex-col gap-2 bg-gray-850 p-4 pb-0">
-                              <h3 className="text-base font-bold text-white">
-                                {servicio.nombre_servicio}
-                              </h3>
-
-                              {servicio.descripcion && (
-                                <p className="line-clamp-2 text-sm text-gray-400">
-                                  {servicio.descripcion}
-                                </p>
-                              )}
-                            </div>
                           </Link>
+
+                          <FavoritoBoton
+                            servicioId={servicio.id}
+                            className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gray-950/70 backdrop-blur-sm"
+                            size={16}
+                          />
                         </div>
 
-                        {servicio.whatsapp && (
-                          <div className="bg-gray-850 p-4 pt-2">
+                        <div className="flex items-center gap-3 bg-gray-850 p-4">
+                          <Link
+                            href={`/servicio/${servicio.id}`}
+                            className="flex min-w-0 flex-1 flex-col gap-1"
+                          >
+                            <h3 className="truncate text-base font-bold text-white">
+                              {servicio.nombre_servicio}
+                            </h3>
+
+                            {servicio.descripcion && (
+                              <p className="line-clamp-1 text-sm text-gray-400">
+                                {servicio.descripcion}
+                              </p>
+                            )}
+                          </Link>
+
+                          {servicio.whatsapp && (
                             <WhatsAppButton
                               numero={servicio.whatsapp}
-                              label="Escribir por WhatsApp"
-                              variante="sutil"
-                              className="w-full px-3.5 py-2.5 text-xs"
+                              variante="solido"
+                              label=""
+                              className="h-10 w-10 shrink-0 rounded-full p-0"
                             />
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     );
                   })}
@@ -434,6 +436,9 @@ export default function HomePage() {
 
             {regulares.length > 0 && (
               <div className="flex flex-col gap-3">
+                {destacados.length > 0 && (
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-700/60 to-transparent" />
+                )}
                 <h2 className="text-[11px] font-bold uppercase tracking-widest text-gray-500">
                   Servicios
                 </h2>
