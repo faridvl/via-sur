@@ -461,14 +461,14 @@ export default function HomePage() {
                   return (
                     <div
                       key={servicio.id}
-                      className="flex items-center gap-3 rounded-xl border border-gray-700/60 bg-gray-800 p-3 shadow-md shadow-black/20 transition-transform active:scale-[0.98]"
+                      className="flex items-center gap-3 rounded-xl border border-gray-700 bg-gray-800 p-3 shadow-md shadow-black/20 transition-transform active:scale-[0.98]"
                     >
                       <Link
                         href={`/servicio/${servicio.id}`}
                         className="flex min-w-0 flex-1 items-center gap-3"
                       >
                         <div
-                          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-900 bg-cover bg-center"
+                          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-gray-700/80 bg-gray-900 bg-cover bg-center"
                           style={
                             portada
                               ? { backgroundImage: `url(${portada.url})` }
@@ -512,7 +512,7 @@ export default function HomePage() {
 
                       <FavoritoBoton
                         servicioId={servicio.id}
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-900"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-700/80 bg-gray-900"
                       />
 
                       {servicio.whatsapp && (
@@ -520,7 +520,7 @@ export default function HomePage() {
                           numero={servicio.whatsapp}
                           variante="solido"
                           label=""
-                          className="h-10 w-10 shrink-0 rounded-full p-0"
+                          className="h-11 w-11 shrink-0 rounded-full p-0"
                         />
                       )}
                     </div>
