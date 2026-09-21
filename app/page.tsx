@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { MapPin, Search, Star } from "lucide-react";
+import { MapPin, Search, Star, X } from "lucide-react";
 import { Categoria, ImagenServicio, Localidad, ServicioLocal } from "@/types/viasur";
 import LocationSelector from "@/components/LocationSelector";
+import PanelBusqueda from "@/components/PanelBusqueda";
+import { useBusquedasRecientes } from "@/lib/busquedasRecientes";
 import { colorDeCategoria, iconoDeCategoria } from "@/lib/categoriaIconos";
 import LogoViaSur from "@/components/LogoViaSur";
 import FondoMontanas from "@/components/FondoMontanas";
@@ -18,8 +19,6 @@ const CLAVE_CATEGORIA = "viasur:categoria_id";
 const CLAVE_LOCALIDAD = "viasur:localidad_id";
 
 export default function HomePage() {
-  const router = useRouter();
-
   const [localidades, setLocalidades] = useState<Localidad[]>([]);
   const [localidadId, setLocalidadId] = useState<number | null>(null);
 
@@ -29,10 +28,32 @@ export default function HomePage() {
   const categoriaBotonRef = useRef<Map<number, HTMLButtonElement>>(new Map());
   const restauroCategoriaInicial = useRef(false);
   const [restauracionLista, setRestauracionLista] = useState(false);
+  const inputBusquedaRef = useRef<HTMLInputElement>(null);
+
+  // Destacados: siempre los de la localidad actual, sin filtrar por
+  // categoría ni búsqueda — se cargan aparte de "servicios" (regulares).
+  const [destacados, setDestacados] = useState<ServicioLocal[]>([]);
+  const [imagenesDestacados, setImagenesDestacados] = useState<
+    Record<string, ImagenServicio[]>
+  >({});
 
   const [servicios, setServicios] = useState<ServicioLocal[]>([]);
   const [imagenes, setImagenes] = useState<Record<string, ImagenServicio[]>>({});
   const [estadoServicios, setEstadoServicios] = useState<EstadoCarga>("idle");
+
+  // Búsqueda por texto: el panel (ver PanelBusqueda) se inserta en el
+  // flujo normal de la página, debajo del input, mientras este está
+  // enfocado o tiene texto — empuja Categorías/Destacados/Servicios hacia
+  // abajo en vez de taparlos. Global, sin importar localidad ni categoría.
+  const [buscadorEnfocado, setBuscadorEnfocado] = useState(false);
+  const [textoBusqueda, setTextoBusqueda] = useState("");
+  const panelBusquedaActivo = buscadorEnfocado || textoBusqueda.trim().length > 0;
+  const { agregarBusqueda } = useBusquedasRecientes();
+  const [resultadosBusqueda, setResultadosBusqueda] = useState<ServicioLocal[]>([]);
+  const [imagenesBusqueda, setImagenesBusqueda] = useState<
+    Record<string, ImagenServicio[]>
+  >({});
+  const [estadoBusqueda, setEstadoBusqueda] = useState<EstadoCarga>("idle");
 
   // Carga inicial: localidades y categorías en paralelo.
   useEffect(() => {
@@ -157,6 +178,96 @@ export default function HomePage() {
     };
   }, [localidadId, categoriaId]);
 
+  // Carga de destacados por localidad, siempre sin filtro de categoría:
+  // esta sección debe mostrarse igual sin importar qué categoría o texto
+  // de búsqueda tenga seleccionado el usuario.
+  useEffect(() => {
+    if (!localidadId) {
+      setDestacados([]);
+      setImagenesDestacados({});
+      return;
+    }
+
+    let cancelado = false;
+
+    async function cargarDestacados() {
+      try {
+        const res = await fetch(
+          `/api/servicios?localidad_id=${localidadId}`
+        );
+
+        if (!res.ok) {
+          throw new Error("Respuesta no exitosa del servidor.");
+        }
+
+        const data: {
+          servicios: ServicioLocal[];
+          imagenes?: Record<string, ImagenServicio[]>;
+        } = await res.json();
+
+        if (!cancelado) {
+          setDestacados((data.servicios ?? []).filter((s) => s.es_destacado));
+          setImagenesDestacados(data.imagenes ?? {});
+        }
+      } catch {
+        // Silencioso: la sección de destacados simplemente no aparece.
+      }
+    }
+
+    cargarDestacados();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [localidadId]);
+
+  // Búsqueda por texto: global, sin importar localidad ni categoría
+  // seleccionada. Los resultados se muestran en PanelBusqueda, sin
+  // afectar las secciones Destacados/Servicios del Home.
+  useEffect(() => {
+    const consulta = textoBusqueda.trim();
+
+    if (consulta.length < 2) {
+      setResultadosBusqueda([]);
+      setEstadoBusqueda("idle");
+      return;
+    }
+
+    let cancelado = false;
+    setEstadoBusqueda("cargando");
+
+    const temporizador = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({ q: consulta });
+        const res = await fetch(`/api/buscar?${params.toString()}`);
+
+        if (!res.ok) {
+          throw new Error("Respuesta no exitosa del servidor.");
+        }
+
+        const data: {
+          servicios: ServicioLocal[];
+          imagenes?: Record<string, ImagenServicio[]>;
+        } = await res.json();
+
+        if (!cancelado) {
+          setResultadosBusqueda(data.servicios ?? []);
+          setImagenesBusqueda(data.imagenes ?? {});
+          setEstadoBusqueda("listo");
+        }
+      } catch {
+        if (!cancelado) {
+          setEstadoBusqueda("error");
+        }
+      }
+    }, 350);
+
+    return () => {
+      cancelado = true;
+      clearTimeout(temporizador);
+    };
+  }, [textoBusqueda]);
+
   // Persiste la selección para sobrevivir a la navegación de ida y vuelta
   // a la pantalla de detalle (sessionStorage: vive mientras dure la pestaña).
   // Espera a que termine la restauración inicial: si escribimos antes,
@@ -200,17 +311,16 @@ export default function HomePage() {
     });
   }, [categoriaId, categorias]);
 
-  const destacados = useMemo(
-    () => servicios.filter((s) => s.es_destacado),
-    [servicios]
-  );
+  // "Servicios" (sección regular, no destacados) de la categoría
+  // seleccionada, o todos sin categoría. Nunca incluye destacados: esos
+  // viven en su propia sección, siempre visible. La búsqueda por texto ya
+  // no filtra esta sección — vive aparte, en PanelBusqueda.
   const regulares = useMemo(
     () => servicios.filter((s) => !s.es_destacado),
     [servicios]
   );
 
   const categoriaSeleccionada = categorias.find((c) => c.id === categoriaId);
-  const localidadActual = localidades.find((l) => l.id === localidadId);
 
   return (
     <main className="flex min-h-screen w-full flex-col pb-10">
@@ -245,18 +355,63 @@ export default function HomePage() {
             />
           </div>
 
-          <button
-            type="button"
-            onClick={() => router.push("/buscar")}
-            className="flex items-center gap-2.5 rounded-full border border-gray-700 bg-gray-900/80 px-4 py-3 text-left text-sm text-gray-400 backdrop-blur-sm transition-transform active:scale-[0.98]"
-          >
-            <Search size={18} strokeWidth={1.75} aria-hidden="true" />
-            Buscar servicios o negocios…
-          </button>
+          <label className="flex items-center gap-2.5 rounded-full border border-gray-700 bg-gray-900/80 px-4 py-3 backdrop-blur-sm">
+            <Search
+              className="shrink-0 text-gray-400"
+              size={18}
+              strokeWidth={1.75}
+              aria-hidden="true"
+            />
+            <input
+              ref={inputBusquedaRef}
+              type="text"
+              value={textoBusqueda}
+              onChange={(e) => setTextoBusqueda(e.target.value)}
+              onFocus={() => setBuscadorEnfocado(true)}
+              placeholder="Buscar servicios o negocios…"
+              aria-label="Buscar servicios o negocios"
+              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-gray-400"
+            />
+            {panelBusquedaActivo && (
+              <button
+                type="button"
+                onClick={() => {
+                  setTextoBusqueda("");
+                  setBuscadorEnfocado(false);
+                  inputBusquedaRef.current?.blur();
+                }}
+                aria-label="Cerrar búsqueda"
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-700 text-gray-300 transition-transform active:scale-90"
+              >
+                <X size={12} strokeWidth={2.5} aria-hidden="true" />
+              </button>
+            )}
+          </label>
         </div>
       </header>
 
-      <div className="flex flex-col gap-5 px-5">
+      {panelBusquedaActivo && (
+        <div className="pt-5">
+          <PanelBusqueda
+            activo={panelBusquedaActivo}
+            texto={textoBusqueda}
+            onBuscarTexto={setTextoBusqueda}
+            onSeleccionarResultado={() => {
+              if (textoBusqueda.trim().length >= 2) {
+                agregarBusqueda(textoBusqueda);
+              }
+              setBuscadorEnfocado(false);
+            }}
+            resultados={resultadosBusqueda}
+            imagenes={imagenesBusqueda}
+            estado={estadoBusqueda}
+            categorias={categorias}
+            localidades={localidades}
+          />
+        </div>
+      )}
+
+      <div className={`flex flex-col gap-5 px-5 pt-5 ${panelBusquedaActivo ? "hidden" : ""}`}>
         {/* Categorías — carrusel horizontal, con indicador de scroll */}
         <div className="relative -mx-5">
           <section className="no-scrollbar flex snap-x gap-5 overflow-x-auto px-5 pb-1">
@@ -329,38 +484,40 @@ export default function HomePage() {
               </p>
             )}
 
-            {estadoServicios === "listo" && servicios.length === 0 && (
-              <div className="flex flex-col items-center gap-3 rounded-xl bg-gray-800/60 px-6 py-12 text-center">
-                {categoriaSeleccionada &&
-                  (() => {
-                    const IconoVacio = iconoDeCategoria(
-                      categoriaSeleccionada.nombre
-                    );
-                    return (
-                      <IconoVacio
-                        className="text-gray-500"
-                        size={32}
-                        strokeWidth={1.5}
-                        aria-hidden="true"
-                      />
-                    );
-                  })()}
-                <p className="text-sm font-semibold text-gray-200">
-                  {categoriaSeleccionada
-                    ? `Todavía no hay servicios de ${categoriaSeleccionada.nombre} en esta localidad.`
-                    : "Todavía no hay servicios registrados en esta localidad."}
-                </p>
-                <p className="text-xs text-gray-400">
-                  ¿Tenés un negocio de esta categoría?
-                </p>
-                <Link
-                  href="/mis-servicios"
-                  className="mt-1 rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
-                >
-                  Sé el primero en registrarte
-                </Link>
-              </div>
-            )}
+            {estadoServicios === "listo" &&
+              regulares.length === 0 &&
+              destacados.length === 0 && (
+                <div className="flex flex-col items-center gap-3 rounded-xl bg-gray-800/60 px-6 py-12 text-center">
+                  {categoriaSeleccionada &&
+                    (() => {
+                      const IconoVacio = iconoDeCategoria(
+                        categoriaSeleccionada.nombre
+                      );
+                      return (
+                        <IconoVacio
+                          className="text-gray-500"
+                          size={32}
+                          strokeWidth={1.5}
+                          aria-hidden="true"
+                        />
+                      );
+                    })()}
+                  <p className="text-sm font-semibold text-gray-200">
+                    {categoriaSeleccionada
+                      ? `Todavía no hay servicios de ${categoriaSeleccionada.nombre} en esta localidad.`
+                      : "Todavía no hay servicios registrados en esta localidad."}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    ¿Tenés un negocio de esta categoría?
+                  </p>
+                  <Link
+                    href="/mis-servicios"
+                    className="mt-1 rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
+                  >
+                    Sé el primero en registrarte
+                  </Link>
+                </div>
+              )}
 
             {destacados.length > 0 && (
               <div className="flex flex-col gap-4">
@@ -369,7 +526,7 @@ export default function HomePage() {
                 </h2>
                 <div className="no-scrollbar -mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-1">
                   {destacados.map((servicio) => {
-                    const portada = imagenes[servicio.id]?.[0];
+                    const portada = imagenesDestacados[servicio.id]?.[0];
 
                     return (
                       <div
