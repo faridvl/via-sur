@@ -15,7 +15,8 @@ const REMITENTE = process.env.RESEND_FROM_EMAIL ?? "TicoRed <onboarding@resend.d
 
 export async function enviarEnlaceAcceso(
   email: string,
-  enlace: string
+  enlace: string,
+  codigo: string
 ): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
 
@@ -32,11 +33,13 @@ export async function enviarEnlaceAcceso(
     body: JSON.stringify({
       from: REMITENTE,
       to: email,
-      subject: "Tu enlace de acceso a TicoRed",
+      subject: "Tu código de acceso a TicoRed",
       html: `
-        <p>Hacé clic en el siguiente enlace para iniciar sesión en TicoRed:</p>
+        <p>Si instalaste TicoRed como app en tu celular, abrila y escribí este código para iniciar sesión:</p>
+        <p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${codigo}</p>
+        <p>Si estás en la computadora, también podés hacer clic en este enlace:</p>
         <p><a href="${enlace}">${enlace}</a></p>
-        <p>Este enlace vence en 15 minutos. Si no solicitaste este acceso, podés ignorar este correo.</p>
+        <p>El código y el enlace vencen en 15 minutos. Si no solicitaste este acceso, podés ignorar este correo.</p>
       `,
     }),
   });

@@ -71,12 +71,28 @@ create table if not exists usuarios (
 create table if not exists enlaces_acceso (
     token       uuid primary key default gen_random_uuid(),
     email       text not null,
+    codigo      text not null,
     expira_en   timestamptz not null,
     usado       boolean not null default false,
     created_at  timestamptz not null default now()
 );
 
 create index if not exists idx_enlaces_acceso_email on enlaces_acceso (email);
+
+-- La columna `codigo` se agregó después de la primera versión de esta tabla;
+-- este bloque la crea en bases ya existentes donde init.sql corrió antes.
+do $$
+begin
+    if not exists (
+        select 1 from information_schema.columns
+        where table_name = 'enlaces_acceso' and column_name = 'codigo'
+    ) then
+        alter table enlaces_acceso add column codigo text not null default '';
+        alter table enlaces_acceso alter column codigo drop default;
+    end if;
+end $$;
+
+create index if not exists idx_enlaces_acceso_email_codigo on enlaces_acceso (email, codigo);
 
 -- ---------------------------------------------------------------------
 -- Tabla: sesiones

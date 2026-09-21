@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { COOKIE_SESION, SESION_DURACION_MS } from "@/types/viasur";
+import { crearSesionParaEmail } from "@/lib/auth";
+import { COOKIE_SESION } from "@/types/viasur";
 
 export const dynamic = "force-dynamic";
 
 /**
  * GET /api/auth/verificar?token=uuid
- * Consume un enlace de acceso: si es válido y no expiró, busca o crea el
- * usuario por email, abre una sesión (cookie httpOnly) y redirige a
- * /login/listo. Se redirige ahí (no directo a /mis-servicios) porque el
- * enlace del correo siempre abre en el navegador del sistema, nunca en la
- * PWA instalada, así que hay que avisarle al usuario que vuelva a la app.
+ * Consume un enlace de acceso por su link (alternativa a escribir el
+ * código de 6 dígitos, ver /api/auth/verificar-codigo). Útil en desktop;
+ * en celular el link abre el navegador del sistema, no la PWA instalada,
+ * por eso redirige a /login/listo en vez de directo a /mis-servicios.
  * Si el enlace no es válido, redirige a /login con un error.
  */
 export async function GET(request: NextRequest) {
@@ -39,29 +39,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    let [usuario] = (await sql`
-      select id from usuarios where email = ${enlace.email}
-    `) as { id: string }[];
-
-    if (!usuario) {
-      [usuario] = (await sql`
-        insert into usuarios (email)
-        values (${enlace.email})
-        returning id
-      `) as { id: string }[];
-    }
-
-    const expiraEn = new Date(Date.now() + SESION_DURACION_MS);
-
-    const [sesion] = (await sql`
-      insert into sesiones (usuario_id, expira_en)
-      values (${usuario.id}, ${expiraEn.toISOString()})
-      returning token
-    `) as { token: string }[];
+    const { token: sesionToken, expiraEn } = await crearSesionParaEmail(
+      enlace.email
+    );
 
     const respuesta = NextResponse.redirect(`${origen}/login/listo`);
 
-    respuesta.cookies.set(COOKIE_SESION, sesion.token, {
+    respuesta.cookies.set(COOKIE_SESION, sesionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

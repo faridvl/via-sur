@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getDb } from "@/lib/db";
-import { COOKIE_SESION } from "@/types/viasur";
+import { COOKIE_SESION, SESION_DURACION_MS } from "@/types/viasur";
 
 /**
  * Resuelve el usuario autenticado a partir de la cookie de sesión,
@@ -25,4 +25,38 @@ export async function obtenerUsuarioIdActual(
   `) as { usuario_id: string }[];
 
   return sesion?.usuario_id ?? null;
+}
+
+/**
+ * Busca o crea el usuario por email y abre una sesión nueva.
+ * Compartido entre el consumo del enlace por token (link del correo) y por
+ * código de 6 dígitos (input manual): ambos caminos llegan al mismo punto
+ * una vez identificado el email dueño del enlace.
+ */
+export async function crearSesionParaEmail(
+  email: string
+): Promise<{ token: string; expiraEn: Date }> {
+  const sql = getDb();
+
+  let [usuario] = (await sql`
+    select id from usuarios where email = ${email}
+  `) as { id: string }[];
+
+  if (!usuario) {
+    [usuario] = (await sql`
+      insert into usuarios (email)
+      values (${email})
+      returning id
+    `) as { id: string }[];
+  }
+
+  const expiraEn = new Date(Date.now() + SESION_DURACION_MS);
+
+  const [sesion] = (await sql`
+    insert into sesiones (usuario_id, expira_en)
+    values (${usuario.id}, ${expiraEn.toISOString()})
+    returning token
+  `) as { token: string }[];
+
+  return { token: sesion.token, expiraEn };
 }

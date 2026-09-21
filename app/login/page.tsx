@@ -1,13 +1,13 @@
 "use client";
 
 import { FormEvent, Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Check, Mail, Send } from "lucide-react";
+import { KeyRound, Mail } from "lucide-react";
 import Button from "@/components/Button";
 import LogoTicoRed from "@/components/LogoTicoRed";
 
-type Estado = "idle" | "enviando" | "enviado" | "error";
+type Estado = "idle" | "enviando" | "enviado" | "verificando" | "error";
 
 export default function IniciarSesionPage() {
   return (
@@ -18,12 +18,16 @@ export default function IniciarSesionPage() {
 }
 
 function FormularioIniciarSesion() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const enlaceInvalido = searchParams.get("error") === "enlace-invalido";
 
   const [email, setEmail] = useState("");
+  const [codigo, setCodigo] = useState("");
   const [estado, setEstado] = useState<Estado>("idle");
   const [error, setError] = useState<string | null>(null);
+
+  const enlaceEnviado = estado === "enviado" || estado === "verificando";
 
   async function manejarEnvio(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -39,12 +43,38 @@ function FormularioIniciarSesion() {
 
       if (!res.ok) {
         const data: { error?: string } = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "No se pudo enviar el enlace.");
+        throw new Error(data.error ?? "No se pudo enviar el código.");
       }
 
       setEstado("enviado");
     } catch (err) {
       setEstado("error");
+      setError(
+        err instanceof Error ? err.message : "Ocurrió un error inesperado."
+      );
+    }
+  }
+
+  async function manejarVerificarCodigo(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    setEstado("verificando");
+    setError(null);
+
+    try {
+      const res = await fetch("/api/auth/verificar-codigo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, codigo }),
+      });
+
+      if (!res.ok) {
+        const data: { error?: string } = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Ese código no es válido.");
+      }
+
+      router.push("/mis-servicios");
+    } catch (err) {
+      setEstado("enviado");
       setError(
         err instanceof Error ? err.message : "Ocurrió un error inesperado."
       );
@@ -78,7 +108,7 @@ function FormularioIniciarSesion() {
             Iniciar sesión
           </h2>
           <p className="-mt-2 text-sm text-gray-300">
-            Te enviamos un enlace a tu correo y listo. Sin contraseñas.
+            Te enviamos un código a tu correo y listo. Sin contraseñas.
           </p>
 
           <form onSubmit={manejarEnvio} className="flex flex-col gap-2 pt-2">
@@ -99,7 +129,7 @@ function FormularioIniciarSesion() {
                   autoFocus
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={estado === "enviado"}
+                  disabled={enlaceEnviado}
                   className="w-full rounded-xl border border-gray-700 bg-gray-800 py-3.5 pl-11 pr-4 text-sm text-white outline-none focus:border-primary-400 disabled:opacity-60"
                 />
               </span>
@@ -111,42 +141,76 @@ function FormularioIniciarSesion() {
               </p>
             )}
 
-            {error && <p className="text-sm text-red-400">{error}</p>}
+            {error && !enlaceEnviado && (
+              <p className="text-sm text-red-400">{error}</p>
+            )}
 
-            <Button
-              type="submit"
-              disabled={estado === "enviando" || estado === "enviado"}
-            >
-              {estado === "enviando" ? "Enviando…" : "Enviar enlace de acceso"}
-            </Button>
+            {!enlaceEnviado && (
+              <Button type="submit" disabled={estado === "enviando"}>
+                {estado === "enviando" ? "Enviando…" : "Enviar código de acceso"}
+              </Button>
+            )}
           </form>
 
-          {estado === "enviado" && (
-            <div className="flex flex-col items-center gap-4 pt-6 text-center">
-              <Send
-                className="-rotate-12 text-primary-400"
-                size={28}
-                strokeWidth={1.5}
-                aria-hidden="true"
-              />
-              <div className="flex w-full flex-col items-center gap-2 rounded-2xl border border-gray-700/70 bg-gray-900/70 px-6 py-6">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-success-500">
-                  <Check className="text-white" size={18} strokeWidth={2.5} aria-hidden="true" />
-                </div>
-                <p className="text-sm font-semibold text-white">
-                  Te enviamos un enlace a
-                  <br />
-                  {email}
-                </p>
-                <p className="text-xs text-gray-300">
-                  Revisá tu bandeja de entrada
-                  <br />y hacé clic en el enlace para entrar.
-                </p>
-              </div>
+          {enlaceEnviado && (
+            <div className="flex flex-col items-center gap-4 pt-4 text-center">
+              <p className="text-sm text-gray-300">
+                Te enviamos un código a
+                <br />
+                <span className="font-semibold text-white">{email}</span>
+              </p>
+
+              <form
+                onSubmit={manejarVerificarCodigo}
+                className="flex w-full flex-col gap-3 rounded-2xl border border-gray-700/70 bg-gray-900/70 px-6 py-6"
+              >
+                <label className="flex flex-col items-center gap-2">
+                  <span className="text-sm font-semibold text-gray-200">
+                    Código de 6 dígitos
+                  </span>
+                  <span className="relative flex w-full items-center justify-center">
+                    <KeyRound
+                      className="pointer-events-none absolute left-4 text-gray-500"
+                      size={18}
+                      strokeWidth={1.75}
+                      aria-hidden="true"
+                    />
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="\d{6}"
+                      maxLength={6}
+                      required
+                      autoFocus
+                      value={codigo}
+                      onChange={(e) =>
+                        setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))
+                      }
+                      className="w-full rounded-xl border border-gray-700 bg-gray-800 py-3.5 pl-11 pr-4 text-center text-lg font-bold tracking-[0.5em] text-white outline-none focus:border-primary-400"
+                    />
+                  </span>
+                </label>
+
+                {error && (
+                  <p className="text-sm text-red-400">{error}</p>
+                )}
+
+                <Button
+                  type="submit"
+                  disabled={estado === "verificando" || codigo.length !== 6}
+                >
+                  {estado === "verificando" ? "Verificando…" : "Ingresar"}
+                </Button>
+              </form>
+
+              <p className="text-xs text-gray-300">
+                También podés hacer clic en el enlace del correo si estás
+                en la computadora.
+              </p>
             </div>
           )}
 
-          {estado !== "enviado" && (
+          {!enlaceEnviado && (
             <p className="pt-2 text-xs text-gray-300">
               ¿Sos dueño de un negocio? Iniciá sesión para publicarlo o
               editarlo.{" "}
