@@ -323,7 +323,7 @@ export default function HomePage() {
   const categoriaSeleccionada = categorias.find((c) => c.id === categoriaId);
 
   return (
-    <main className="flex min-h-screen w-full flex-col pb-10">
+    <main className="flex min-h-full w-full flex-col pb-10">
       {/* Header hero: misma foto de fondo que /login (bahía de Uvita) detrás de marca, ubicación y buscador */}
       <header className="relative overflow-hidden px-5 pb-5 pt-6">
         <div

@@ -423,7 +423,7 @@ export default function MisServiciosPage() {
 
   if (estadoSesion !== "autenticado") {
     return (
-      <main className="flex min-h-screen w-full flex-col items-center justify-center gap-2 px-5">
+      <main className="flex min-h-full w-full flex-col items-center justify-center gap-2 px-5">
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-700 border-t-primary-400" />
         <Typography variante={VarianteTypography.Caption}>Verificando sesión…</Typography>
       </main>
@@ -431,7 +431,7 @@ export default function MisServiciosPage() {
   }
 
   return (
-    <main className="flex min-h-screen w-full flex-col gap-6 px-5 pb-10 pt-6">
+    <main className="flex min-h-full w-full flex-col gap-6 px-5 pb-10 pt-6">
       <div className="flex items-center justify-between gap-3">
         <Button variante="pill" onClick={() => router.back()}>
           ← Volver
