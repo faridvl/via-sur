@@ -416,6 +416,13 @@ export default function HomePage() {
                                 {servicio.descripcion}
                               </p>
                             )}
+
+                            {servicio.direccion_exacta && (
+                              <p className="flex items-center gap-1 truncate text-[11px] font-medium text-gray-500">
+                                <MapPin size={11} strokeWidth={1.75} aria-hidden="true" />
+                                {servicio.direccion_exacta}
+                              </p>
+                            )}
                           </Link>
 
                           {servicio.whatsapp && (
