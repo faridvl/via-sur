@@ -9,6 +9,9 @@
 -- Extensiones necesarias
 -- ---------------------------------------------------------------------
 create extension if not exists "pgcrypto";
+-- Permite comparar texto ignorando tildes/diacríticos (unaccent('Café') = 'Cafe'),
+-- usado en la búsqueda de servicios para que "barberia" encuentre "Barbería".
+create extension if not exists "unaccent";
 
 -- ---------------------------------------------------------------------
 -- Tabla: localidades
@@ -115,9 +118,17 @@ create table if not exists servicios_locales (
     nombre_contacto  text,
     telefono_alternativo text,
     descripcion      text,
+    dias_atencion    text[],
+    hora_apertura    time,
+    hora_cierre      time,
     es_destacado     boolean not null default false,
     created_at       timestamptz not null default now()
 );
+
+alter table servicios_locales drop column if exists horario_texto;
+alter table servicios_locales add column if not exists dias_atencion text[];
+alter table servicios_locales add column if not exists hora_apertura time;
+alter table servicios_locales add column if not exists hora_cierre time;
 
 create index if not exists idx_servicios_localidad_id on servicios_locales (localidad_id);
 create index if not exists idx_servicios_categoria_id on servicios_locales (categoria_id);

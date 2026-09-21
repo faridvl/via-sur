@@ -12,6 +12,30 @@ export enum TipoCobertura {
 }
 
 /**
+ * Día de la semana para el horario de atención. Los valores coinciden
+ * con las etiquetas cortas que se muestran en la UI (ej. "Lun - Sáb").
+ */
+export enum DiaSemana {
+  Lunes = "Lun",
+  Martes = "Mar",
+  Miercoles = "Mié",
+  Jueves = "Jue",
+  Viernes = "Vie",
+  Sabado = "Sáb",
+  Domingo = "Dom",
+}
+
+export const DIAS_SEMANA_ORDEN: DiaSemana[] = [
+  DiaSemana.Lunes,
+  DiaSemana.Martes,
+  DiaSemana.Miercoles,
+  DiaSemana.Jueves,
+  DiaSemana.Viernes,
+  DiaSemana.Sabado,
+  DiaSemana.Domingo,
+];
+
+/**
  * Localidad normalizada (tabla `localidades`).
  * Reemplaza al antiguo ENUM rígido para permitir altas/bajas dinámicas.
  */
@@ -58,6 +82,9 @@ export interface ServicioLocal {
   nombre_contacto: string | null;
   telefono_alternativo: string | null;
   descripcion: string | null;
+  dias_atencion: DiaSemana[] | null;
+  hora_apertura: string | null;
+  hora_cierre: string | null;
   es_destacado: boolean;
   created_at: string;
 }
@@ -100,6 +127,9 @@ export interface FormRegistroServicio {
   nombre_contacto: string;
   telefono_alternativo: string;
   descripcion: string;
+  dias_atencion: DiaSemana[];
+  hora_apertura: string;
+  hora_cierre: string;
 }
 
 /**

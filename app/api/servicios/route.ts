@@ -210,6 +210,9 @@ export async function POST(request: NextRequest) {
     nombre_contacto,
     telefono_alternativo,
     descripcion,
+    dias_atencion,
+    hora_apertura,
+    hora_cierre,
   } = body;
 
   if (!nombre_servicio || typeof nombre_servicio !== "string") {
@@ -247,11 +250,12 @@ export async function POST(request: NextRequest) {
       insert into servicios_locales (
         usuario_id, nombre_servicio, categoria_id, localidad_id,
         cobertura, direccion_exacta, whatsapp, nombre_contacto,
-        telefono_alternativo, descripcion
+        telefono_alternativo, descripcion, dias_atencion, hora_apertura, hora_cierre
       ) values (
         ${usuarioId}, ${nombre_servicio}, ${categoria_id}, ${localidad_id},
         ${cobertura}, ${direccion_exacta ?? null}, ${whatsapp ?? null}, ${nombre_contacto ?? null},
-        ${telefono_alternativo ?? null}, ${descripcion ?? null}
+        ${telefono_alternativo ?? null}, ${descripcion ?? null},
+        ${dias_atencion?.length ? dias_atencion : null}, ${hora_apertura || null}, ${hora_cierre || null}
       )
       returning *
     `) as ServicioLocal[];
@@ -302,6 +306,9 @@ export async function PATCH(request: NextRequest) {
     nombre_contacto,
     telefono_alternativo,
     descripcion,
+    dias_atencion,
+    hora_apertura,
+    hora_cierre,
   } = body;
 
   if (!id || typeof id !== "string") {
@@ -352,7 +359,10 @@ export async function PATCH(request: NextRequest) {
           whatsapp             = ${whatsapp ?? null},
           nombre_contacto      = ${nombre_contacto ?? null},
           telefono_alternativo = ${telefono_alternativo ?? null},
-          descripcion          = ${descripcion ?? null}
+          descripcion          = ${descripcion ?? null},
+          dias_atencion        = ${dias_atencion?.length ? dias_atencion : null},
+          hora_apertura        = ${hora_apertura || null},
+          hora_cierre          = ${hora_cierre || null}
       where id = ${id} and usuario_id = ${usuarioId}
       returning *
     `) as ServicioLocal[];

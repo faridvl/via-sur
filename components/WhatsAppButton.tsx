@@ -1,6 +1,6 @@
 import { normalizarWhatsapp } from "@/lib/whatsapp";
 
-type Variante = "solido" | "sutil";
+type Variante = "solido" | "sutil" | "pastilla";
 
 interface WhatsAppButtonProps {
   numero: string;
@@ -14,19 +14,21 @@ interface WhatsAppButtonProps {
 }
 
 const CLASES_BASE =
-  "flex items-center justify-center gap-2 rounded-xl font-semibold transition-transform active:scale-95";
+  "flex items-center justify-center gap-2 font-semibold transition-transform active:scale-95";
 
 const CLASES_POR_VARIANTE: Record<Variante, string> = {
-  solido: "bg-success-500 text-white",
-  sutil: "border border-success-500/30 bg-success-500/10 text-success-400",
+  solido: "rounded-xl bg-success-500 text-white",
+  sutil: "rounded-xl border border-success-500/30 bg-success-500/10 text-success-400",
+  pastilla: "rounded-full bg-success-500 text-white shadow-[0_8px_20px_-4px] shadow-success-500/40",
 };
 
 /**
  * Botón de contacto por WhatsApp. El verde es intencional y fijo: es el
  * color de la marca WhatsApp (token `success`, no `primary`), no debe
  * seguir el color de marca de VíaSur. `variante="sutil"` es para cards
- * de listado ya cargadas de información; `"solido"` (default) para
- * cuando es la acción principal, como el detalle del servicio.
+ * de listado ya cargadas de información; `"solido"` para acción
+ * principal en cajas rectangulares; `"pastilla"` (rounded-full) para la
+ * acción de contacto de alto impacto en el detalle del servicio.
  */
 export default function WhatsAppButton({
   numero,

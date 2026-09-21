@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import {
   Categoria,
+  DIAS_SEMANA_ORDEN,
+  DiaSemana,
   EstadisticasServicio,
   FormRegistroServicio,
   ImagenServicio,
@@ -40,6 +42,9 @@ const FORM_INICIAL: FormRegistroServicio = {
   nombre_contacto: "",
   telefono_alternativo: "",
   descripcion: "",
+  dias_atencion: [],
+  hora_apertura: "",
+  hora_cierre: "",
 };
 
 type EstadoEnvio = "idle" | "enviando" | "exito" | "error";
@@ -236,6 +241,9 @@ export default function MisServiciosPage() {
       nombre_contacto: servicioActual.nombre_contacto ?? "",
       telefono_alternativo: servicioActual.telefono_alternativo ?? "",
       descripcion: servicioActual.descripcion ?? "",
+      dias_atencion: servicioActual.dias_atencion ?? [],
+      hora_apertura: servicioActual.hora_apertura ?? "",
+      hora_cierre: servicioActual.hora_cierre ?? "",
     });
     setEstadoEnvio("idle");
     setErrorEnvio(null);
@@ -938,6 +946,67 @@ export default function MisServiciosPage() {
                   className="resize-none rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none focus:border-primary-400"
                 />
               </label>
+
+              {/* Horario de atención */}
+              <fieldset className="flex flex-col gap-2">
+                <legend className="text-sm font-semibold text-gray-200">
+                  Días de atención
+                </legend>
+                <div className="grid grid-cols-4 gap-2">
+                  {DIAS_SEMANA_ORDEN.map((dia) => {
+                    const seleccionado = form.dias_atencion.includes(dia);
+
+                    return (
+                      <Button
+                        key={dia}
+                        variante="toggle"
+                        activo={seleccionado}
+                        onClick={() =>
+                          actualizarCampo(
+                            "dias_atencion",
+                            seleccionado
+                              ? form.dias_atencion.filter((d) => d !== dia)
+                              : [...form.dias_atencion, dia]
+                          )
+                        }
+                        aria-pressed={seleccionado}
+                      >
+                        {dia}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </fieldset>
+
+              <div className="grid grid-cols-2 gap-3">
+                <label className="flex flex-col gap-2">
+                  <span className="text-sm font-semibold text-gray-200">
+                    Hora de apertura
+                  </span>
+                  <input
+                    type="time"
+                    value={form.hora_apertura}
+                    onChange={(e) =>
+                      actualizarCampo("hora_apertura", e.target.value)
+                    }
+                    className="rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none focus:border-primary-400"
+                  />
+                </label>
+
+                <label className="flex flex-col gap-2">
+                  <span className="text-sm font-semibold text-gray-200">
+                    Hora de cierre
+                  </span>
+                  <input
+                    type="time"
+                    value={form.hora_cierre}
+                    onChange={(e) =>
+                      actualizarCampo("hora_cierre", e.target.value)
+                    }
+                    className="rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none focus:border-primary-400"
+                  />
+                </label>
+              </div>
 
               {errorEnvio && (
                 <p className="text-sm text-red-400">{errorEnvio}</p>
