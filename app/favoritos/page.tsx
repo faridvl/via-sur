@@ -225,8 +225,8 @@ export default function FavoritosPage() {
                     numero={servicio.whatsapp}
                     variante="solido"
                     label=""
-                    iconSize={24}
-                    className="h-10 w-10 shrink-0 rounded-full p-0"
+                    iconSize={21}
+                    className="h-9 w-9 shrink-0 rounded-full p-0"
                   />
                 )}
               </div>
