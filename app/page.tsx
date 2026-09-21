@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { MapPin, Search, Star } from "lucide-react";
 import { Categoria, ImagenServicio, Localidad, ServicioLocal } from "@/types/viasur";
 import LocationSelector from "@/components/LocationSelector";
-import { iconoDeCategoria } from "@/lib/categoriaIconos";
+import { colorDeCategoria, iconoDeCategoria } from "@/lib/categoriaIconos";
 import LogoViaSur from "@/components/LogoViaSur";
 import FondoMontanas from "@/components/FondoMontanas";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -263,6 +263,7 @@ export default function HomePage() {
             {categorias.map((categoria) => {
               const seleccionada = categoria.id === categoriaId;
               const Icono = iconoDeCategoria(categoria.nombre);
+              const color = colorDeCategoria(categoria.nombre);
 
               return (
                 <button
@@ -282,16 +283,16 @@ export default function HomePage() {
                   className="flex shrink-0 snap-start flex-col items-center gap-1.5 p-1.5 transition-transform active:scale-95"
                 >
                   <span
-                    className={`flex h-16 w-16 items-center justify-center rounded-full border transition-colors ${
+                    className={`flex h-16 w-16 items-center justify-center rounded-full ${color} transition-opacity ${
                       seleccionada
-                        ? "border-primary-500 bg-primary-500/15"
-                        : "border-gray-800 bg-gray-800/80"
+                        ? "opacity-100 ring-2 ring-white/70 ring-offset-2 ring-offset-gray-950"
+                        : "opacity-90"
                     }`}
                   >
                     <Icono
-                      className={seleccionada ? "text-primary-400" : "text-gray-400"}
+                      className="text-white"
                       size={26}
-                      strokeWidth={1.5}
+                      strokeWidth={1.75}
                       aria-hidden="true"
                     />
                   </span>
@@ -373,7 +374,7 @@ export default function HomePage() {
                     return (
                       <div
                         key={servicio.id}
-                        className="group block w-[85%] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-700/70 bg-gray-800 shadow-xl shadow-black/30"
+                        className="group block w-[85%] shrink-0 snap-start overflow-hidden rounded-2xl border border-primary-700/40 bg-primary-950/50 shadow-xl shadow-black/30"
                       >
                         <div className="relative">
                           <Link href={`/servicio/${servicio.id}`}>
@@ -388,7 +389,7 @@ export default function HomePage() {
                               {!portada && (
                                 <FondoMontanas className="absolute inset-0 h-full w-full" />
                               )}
-                              <span className="absolute left-3 top-3 flex items-center gap-1 rounded-lg bg-gray-950/70 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wide text-white">
+                              <span className="absolute left-3 top-3 flex items-center gap-1 rounded-lg bg-accent-500 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wide text-white">
                                 <Star size={10} strokeWidth={2.5} fill="currentColor" aria-hidden="true" />
                                 Destacado
                               </span>
@@ -402,7 +403,7 @@ export default function HomePage() {
                           />
                         </div>
 
-                        <div className="flex items-center gap-3 bg-gray-850 p-4">
+                        <div className="flex items-center gap-3 p-4">
                           <Link
                             href={`/servicio/${servicio.id}`}
                             className="flex min-w-0 flex-1 flex-col gap-1"
@@ -461,14 +462,14 @@ export default function HomePage() {
                   return (
                     <div
                       key={servicio.id}
-                      className="flex items-center gap-3 rounded-xl border border-gray-700 bg-gray-800 p-3 shadow-md shadow-black/20 transition-transform active:scale-[0.98]"
+                      className="flex items-center gap-3 rounded-xl border border-primary-700/40 bg-primary-950/50 p-3 shadow-md shadow-black/20 transition-transform active:scale-[0.98]"
                     >
                       <Link
                         href={`/servicio/${servicio.id}`}
                         className="flex min-w-0 flex-1 items-center gap-3"
                       >
                         <div
-                          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-gray-700/80 bg-gray-900 bg-cover bg-center"
+                          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-primary-700/40 bg-gray-900 bg-cover bg-center"
                           style={
                             portada
                               ? { backgroundImage: `url(${portada.url})` }

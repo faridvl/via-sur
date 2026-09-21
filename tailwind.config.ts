@@ -4,6 +4,7 @@ const config: Config = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./lib/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -21,6 +22,8 @@ const config: Config = {
           500: "#1279e6",
           600: "#0c63c2",
           700: "#0a4f9c",
+          900: "#0d2748",
+          950: "#0a1830",
         },
         accent: {
           400: "#ff9270",
@@ -41,6 +44,17 @@ const config: Config = {
         warning: {
           400: "#fbbf24",
           500: "#f59e0b",
+        },
+        // Colores puntuales solo para diferenciar íconos de categoría
+        // (círculos del carrusel de categorías) — no son parte de la
+        // paleta de acción/estado, únicamente decorativos ahí.
+        violet: {
+          400: "#a78bfa",
+          500: "#8b5cf6",
+        },
+        pink: {
+          400: "#f472b6",
+          500: "#ec4899",
         },
       },
     },
