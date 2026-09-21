@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
  * GET /api/auth/verificar?token=uuid
  * Consume un enlace de acceso: si es válido y no expiró, busca o crea el
  * usuario por email, abre una sesión (cookie httpOnly) y redirige a
- * /mis-servicios. Si el enlace no es válido, redirige a /iniciar-sesion
+ * /mis-servicios. Si el enlace no es válido, redirige a /login
  * con un error.
  */
 export async function GET(request: NextRequest) {
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
   if (!token) {
     return NextResponse.redirect(
-      `${origen}/iniciar-sesion?error=enlace-invalido`
+      `${origen}/login?error=enlace-invalido`
     );
   }
 
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     if (!enlace) {
       return NextResponse.redirect(
-        `${origen}/iniciar-sesion?error=enlace-invalido`
+        `${origen}/login?error=enlace-invalido`
       );
     }
 
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     return respuesta;
   } catch {
     return NextResponse.redirect(
-      `${origen}/iniciar-sesion?error=enlace-invalido`
+      `${origen}/login?error=enlace-invalido`
     );
   }
 }

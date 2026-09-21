@@ -26,6 +26,7 @@ import { iconoDeCategoria } from "@/lib/categoriaIconos";
 import Button from "@/components/Button";
 import Typography, { VarianteTypography } from "@/components/Typography";
 import LogoViaSur from "@/components/LogoViaSur";
+import FondoMontanas from "@/components/FondoMontanas";
 
 const COBERTURAS: TipoCobertura[] = Object.values(TipoCobertura);
 
@@ -90,7 +91,7 @@ export default function MisServiciosPage() {
         if (!res.ok) {
           if (!cancelado) {
             setEstadoSesion("no-autenticado");
-            router.replace("/iniciar-sesion");
+            router.replace("/login");
           }
           return;
         }
@@ -104,7 +105,7 @@ export default function MisServiciosPage() {
       } catch {
         if (!cancelado) {
           setEstadoSesion("no-autenticado");
-          router.replace("/iniciar-sesion");
+          router.replace("/login");
         }
       }
     }
@@ -409,7 +410,7 @@ export default function MisServiciosPage() {
 
   async function cerrarSesion() {
     await fetch("/api/auth/cerrar-sesion", { method: "POST" });
-    router.replace("/iniciar-sesion");
+    router.replace("/login");
   }
 
   if (estadoSesion !== "autenticado") {
@@ -481,7 +482,7 @@ export default function MisServiciosPage() {
           <article className="relative rounded-xl border border-gray-700/60 bg-gray-800 p-4 shadow-lg shadow-black/20 ring-1 ring-inset ring-primary-500/10">
             <div className="flex gap-3">
               <div
-                className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 bg-cover bg-center"
+                className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-gray-900 bg-cover bg-center"
                 style={
                   imagenes[0]
                     ? { backgroundImage: `url(${imagenes[0].url})` }
@@ -489,14 +490,17 @@ export default function MisServiciosPage() {
                 }
               >
                 {!imagenes[0] && (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <IconoCategoriaActual
-                      className="text-gray-600"
-                      size={28}
-                      strokeWidth={1.25}
-                      aria-hidden="true"
-                    />
-                  </div>
+                  <>
+                    <FondoMontanas className="absolute inset-0 h-full w-full" />
+                    <div className="relative flex h-full w-full items-center justify-center">
+                      <IconoCategoriaActual
+                        className="text-white/70"
+                        size={28}
+                        strokeWidth={1.25}
+                        aria-hidden="true"
+                      />
+                    </div>
+                  </>
                 )}
 
                 {servicioActual.es_destacado && (
@@ -628,15 +632,8 @@ export default function MisServiciosPage() {
       )}
 
       {estadoServicioActual === "listo" && servicioActual && (
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-b from-gray-900 to-gray-950">
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-primary-500/10"
-            style={{
-              clipPath:
-                "polygon(0% 100%, 0% 40%, 15% 65%, 30% 20%, 45% 55%, 60% 10%, 75% 50%, 90% 25%, 100% 60%, 100% 100%)",
-            }}
-            aria-hidden="true"
-          />
+        <div className="relative overflow-hidden rounded-xl bg-gray-950">
+          <FondoMontanas className="absolute inset-0 h-full w-full" />
           <div className="relative flex flex-col items-center gap-3 px-6 py-10 text-center">
             <button
               type="button"

@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
     await enviarEnlaceAcceso(email, url);
 
     return NextResponse.json({ ok: true });
-  } catch {
+  } catch (error) {
+    console.error("[solicitar-enlace]", error);
     return NextResponse.json(
       { error: "No se pudo enviar el enlace de acceso. Intentá de nuevo." },
       { status: 500 }
