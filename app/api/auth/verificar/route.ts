@@ -8,8 +8,10 @@ export const dynamic = "force-dynamic";
  * GET /api/auth/verificar?token=uuid
  * Consume un enlace de acceso: si es válido y no expiró, busca o crea el
  * usuario por email, abre una sesión (cookie httpOnly) y redirige a
- * /mis-servicios. Si el enlace no es válido, redirige a /login
- * con un error.
+ * /login/listo. Se redirige ahí (no directo a /mis-servicios) porque el
+ * enlace del correo siempre abre en el navegador del sistema, nunca en la
+ * PWA instalada, así que hay que avisarle al usuario que vuelva a la app.
+ * Si el enlace no es válido, redirige a /login con un error.
  */
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
@@ -57,7 +59,7 @@ export async function GET(request: NextRequest) {
       returning token
     `) as { token: string }[];
 
-    const respuesta = NextResponse.redirect(`${origen}/mis-servicios`);
+    const respuesta = NextResponse.redirect(`${origen}/login/listo`);
 
     respuesta.cookies.set(COOKIE_SESION, sesion.token, {
       httpOnly: true,
