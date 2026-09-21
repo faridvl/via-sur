@@ -27,7 +27,7 @@ import {
 import { iconoDeCategoria } from "@/lib/categoriaIconos";
 import Button from "@/components/Button";
 import Typography, { VarianteTypography } from "@/components/Typography";
-import LogoViaSur from "@/components/LogoViaSur";
+import LogoTicoRed from "@/components/LogoTicoRed";
 import FondoMontanas from "@/components/FondoMontanas";
 
 const COBERTURAS: TipoCobertura[] = Object.values(TipoCobertura);
@@ -444,10 +444,10 @@ export default function MisServiciosPage() {
 
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <LogoViaSur className="text-primary-400" size={26} />
+          <LogoTicoRed size={26} />
           <span className="text-lg font-bold tracking-tight">
-            <span className="text-white">Vía</span>
-            <span className="text-primary-400">Sur</span>
+            <span className="text-white">Tico</span>
+            <span className="text-primary-400">Red</span>
           </span>
         </div>
 
@@ -466,7 +466,7 @@ export default function MisServiciosPage() {
       <header className="flex flex-col gap-1">
         <Typography variante={VarianteTypography.TituloPagina}>Mis Servicios</Typography>
         <Typography variante={VarianteTypography.Cuerpo}>
-          Administrá tu negocio publicado en VíaSur.
+          Administrá tu negocio publicado en TicoRed.
         </Typography>
       </header>
 

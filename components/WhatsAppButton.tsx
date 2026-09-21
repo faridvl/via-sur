@@ -25,7 +25,7 @@ const CLASES_POR_VARIANTE: Record<Variante, string> = {
 /**
  * Botón de contacto por WhatsApp. El verde es intencional y fijo: es el
  * color de la marca WhatsApp (token `success`, no `primary`), no debe
- * seguir el color de marca de VíaSur. `variante="sutil"` es para cards
+ * seguir el color de marca de TicoRed. `variante="sutil"` es para cards
  * de listado ya cargadas de información; `"solido"` para acción
  * principal en cajas rectangulares; `"pastilla"` (rounded-full) para la
  * acción de contacto de alto impacto en el detalle del servicio.

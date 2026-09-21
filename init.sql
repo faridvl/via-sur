@@ -1,5 +1,5 @@
 -- =====================================================================
--- VíaSur — Esquema inicial de base de datos (Neon / PostgreSQL)
+-- TicoRed — Esquema inicial de base de datos (Neon / PostgreSQL)
 -- =====================================================================
 -- Normaliza "localidades" y "categorías" en tablas propias en lugar de
 -- ENUMs, para permitir agregar/desactivar valores sin migraciones futuras.

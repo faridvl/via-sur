@@ -1,7 +1,7 @@
 {
-  "name": "VíaSur",
-  "short_name": "VíaSur",
-  "description": "Directorio de servicios locales del sur de Costa Rica.",
+  "name": "TicoRed",
+  "short_name": "TicoRed",
+  "description": "La red de comercios y servicios de Costa Rica.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#030712",

@@ -11,7 +11,7 @@ const RESEND_API_URL = "https://api.resend.com/emails";
  * no se verifique un dominio propio, Resend permite enviar solo desde
  * "onboarding@resend.dev" (válido para pruebas, no para producción real).
  */
-const REMITENTE = process.env.RESEND_FROM_EMAIL ?? "VíaSur <onboarding@resend.dev>";
+const REMITENTE = process.env.RESEND_FROM_EMAIL ?? "TicoRed <onboarding@resend.dev>";
 
 export async function enviarEnlaceAcceso(
   email: string,
@@ -32,9 +32,9 @@ export async function enviarEnlaceAcceso(
     body: JSON.stringify({
       from: REMITENTE,
       to: email,
-      subject: "Tu enlace de acceso a VíaSur",
+      subject: "Tu enlace de acceso a TicoRed",
       html: `
-        <p>Hacé clic en el siguiente enlace para iniciar sesión en VíaSur:</p>
+        <p>Hacé clic en el siguiente enlace para iniciar sesión en TicoRed:</p>
         <p><a href="${enlace}">${enlace}</a></p>
         <p>Este enlace vence en 15 minutos. Si no solicitaste este acceso, podés ignorar este correo.</p>
       `,

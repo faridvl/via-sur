@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Check, Mail, Send } from "lucide-react";
 import Button from "@/components/Button";
-import LogoViaSur from "@/components/LogoViaSur";
+import LogoTicoRed from "@/components/LogoTicoRed";
 
 type Estado = "idle" | "enviando" | "enviado" | "error";
 
@@ -63,13 +63,13 @@ function FormularioIniciarSesion() {
 
       <div className="relative flex min-h-screen w-full flex-col gap-10 px-6 pb-10 pt-10">
         <div className="flex flex-col items-center gap-2 text-center">
-          <LogoViaSur className="text-primary-400" size={40} />
+          <LogoTicoRed size={40} />
           <h1 className="text-2xl font-bold tracking-tight">
-            <span className="text-white">Vía</span>
-            <span className="text-primary-400">Sur</span>
+            <span className="text-white">Tico</span>
+            <span className="text-primary-400">Red</span>
           </h1>
           <p className="text-sm text-gray-200">
-            Servicios y negocios locales del sur de Costa Rica
+            La red de comercios y servicios de Costa Rica
           </p>
         </div>
 

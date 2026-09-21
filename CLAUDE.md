@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-VíaSur — PWA / mobile-first directory of local services for southern Costa Rica (Río Claro, Golfito, Ciudad Neily, Paso Canoas). Next.js 14 (App Router) + TypeScript + TailwindCSS, backed by Neon (serverless Postgres). All UI copy, code comments, and domain/table/column names are in Spanish — keep new code consistent with this.
+TicoRed — PWA / mobile-first directory of local services for Costa Rica, currently focused on the southern zone (Río Claro, Golfito, Ciudad Neily, Paso Canoas). Next.js 14 (App Router) + TypeScript + TailwindCSS, backed by Neon (serverless Postgres). All UI copy, code comments, and domain/table/column names are in Spanish — keep new code consistent with this.
 
 ## Commands
 

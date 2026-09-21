@@ -8,7 +8,7 @@ import LocationSelector from "@/components/LocationSelector";
 import PanelBusqueda from "@/components/PanelBusqueda";
 import { useBusquedasRecientes } from "@/lib/busquedasRecientes";
 import { colorDeCategoria, iconoDeCategoria } from "@/lib/categoriaIconos";
-import LogoViaSur from "@/components/LogoViaSur";
+import LogoTicoRed from "@/components/LogoTicoRed";
 import FondoMontanas from "@/components/FondoMontanas";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import FavoritoBoton from "@/components/FavoritoBoton";
@@ -336,14 +336,14 @@ export default function HomePage() {
         <div className="relative flex flex-col gap-4 pt-2">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <LogoViaSur className="text-primary-400" size={30} />
+              <LogoTicoRed size={30} />
               <div className="flex flex-col leading-none">
                 <h1 className="text-xl font-bold tracking-tight">
-                  <span className="text-white">Vía</span>
-                  <span className="text-primary-400">Sur</span>
+                  <span className="text-white">Tico</span>
+                  <span className="text-primary-400">Red</span>
                 </h1>
                 <p className="mt-1 text-[10px] font-medium text-gray-300">
-                  Servicios y negocios locales del sur de Costa Rica
+                  La red de comercios y servicios de Costa Rica
                 </p>
               </div>
             </div>

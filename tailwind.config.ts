@@ -12,7 +12,7 @@ const config: Config = {
         gray: {
           850: "#172033",
         },
-        // Identidad VíaSur: azul océano (Pacífico Sur / Golfito) como
+        // Identidad TicoRed: azul océano (Pacífico Sur / Golfito) como
         // primario, coral cálido como acento de acción secundario.
         // Reservados para acciones de marca — no usar en estado/semántica.
         primary: {

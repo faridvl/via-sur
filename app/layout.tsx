@@ -2,12 +2,12 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import BottomNav from "@/components/BottomNav";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://via-sur.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ticored.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "VíaSur",
-  description: "Directorio de servicios locales del sur de Costa Rica.",
+  title: "TicoRed",
+  description: "La red de comercios y servicios de Costa Rica.",
   manifest: "/manifest.json",
   icons: {
     icon: [
@@ -20,17 +20,17 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "VíaSur",
-    description: "Directorio de servicios locales del sur de Costa Rica.",
+    title: "TicoRed",
+    description: "La red de comercios y servicios de Costa Rica.",
     url: SITE_URL,
-    siteName: "VíaSur",
+    siteName: "TicoRed",
     locale: "es_CR",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "VíaSur",
-    description: "Directorio de servicios locales del sur de Costa Rica.",
+    title: "TicoRed",
+    description: "La red de comercios y servicios de Costa Rica.",
   },
 };
 

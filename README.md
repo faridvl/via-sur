@@ -1,6 +1,6 @@
-# VíaSur
+# TicoRed
 
-PWA / Mobile-First — directorio de servicios locales del sur de Costa Rica (Río Claro, Golfito, Ciudad Neily, Paso Canoas).
+PWA / Mobile-First — la red de comercios y servicios de Costa Rica (Río Claro, Golfito, Ciudad Neily, Paso Canoas).
 
 ## Stack
 
