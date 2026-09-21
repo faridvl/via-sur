@@ -431,6 +431,7 @@ export default function HomePage() {
                               numero={servicio.whatsapp}
                               variante="solido"
                               label=""
+                              iconSize={24}
                               className="h-10 w-10 shrink-0 rounded-full p-0"
                             />
                           )}
@@ -521,6 +522,7 @@ export default function HomePage() {
                           numero={servicio.whatsapp}
                           variante="solido"
                           label=""
+                          iconSize={24}
                           className="h-11 w-11 shrink-0 rounded-full p-0"
                         />
                       )}
