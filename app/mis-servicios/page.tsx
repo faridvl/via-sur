@@ -799,8 +799,7 @@ export default function MisServiciosPage() {
                   onChange={(e) =>
                     actualizarCampo("nombre_servicio", e.target.value)
                   }
-                  className="rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none placeholder:text-gray-500 focus:border-primary-400"
-                  placeholder="Ej. Soda Doña Marta"
+                  className="rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none focus:border-primary-400"
                 />
               </label>
 
@@ -878,8 +877,7 @@ export default function MisServiciosPage() {
                   onChange={(e) =>
                     actualizarCampo("direccion_exacta", e.target.value)
                   }
-                  className="rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none placeholder:text-gray-500 focus:border-primary-400"
-                  placeholder="Ej. 100m sur del parque central"
+                  className="rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none focus:border-primary-400"
                 />
               </label>
 
@@ -892,8 +890,7 @@ export default function MisServiciosPage() {
                   type="tel"
                   value={form.whatsapp}
                   onChange={(e) => actualizarCampo("whatsapp", e.target.value)}
-                  className="rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none placeholder:text-gray-500 focus:border-primary-400"
-                  placeholder="Ej. 8888-8888"
+                  className="rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none focus:border-primary-400"
                 />
               </label>
 
@@ -908,8 +905,7 @@ export default function MisServiciosPage() {
                   onChange={(e) =>
                     actualizarCampo("nombre_contacto", e.target.value)
                   }
-                  className="rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none placeholder:text-gray-500 focus:border-primary-400"
-                  placeholder="Ej. Doña Marta"
+                  className="rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none focus:border-primary-400"
                 />
               </label>
 
@@ -924,8 +920,7 @@ export default function MisServiciosPage() {
                   onChange={(e) =>
                     actualizarCampo("telefono_alternativo", e.target.value)
                   }
-                  className="rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none placeholder:text-gray-500 focus:border-primary-400"
-                  placeholder="Ej. 8888-8888 (si es distinto del WhatsApp)"
+                  className="rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none focus:border-primary-400"
                 />
               </label>
 
@@ -940,8 +935,7 @@ export default function MisServiciosPage() {
                     actualizarCampo("descripcion", e.target.value)
                   }
                   rows={4}
-                  className="resize-none rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none placeholder:text-gray-500 focus:border-primary-400"
-                  placeholder="Contale a la gente qué ofrecés"
+                  className="resize-none rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white outline-none focus:border-primary-400"
                 />
               </label>
 

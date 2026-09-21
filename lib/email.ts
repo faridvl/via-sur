@@ -42,6 +42,9 @@ export async function enviarEnlaceAcceso(
   });
 
   if (!res.ok) {
-    throw new Error("No se pudo enviar el correo con el enlace de acceso.");
+    const detalle = await res.text().catch(() => "");
+    throw new Error(
+      `No se pudo enviar el correo con el enlace de acceso. Resend respondió ${res.status}: ${detalle}`
+    );
   }
 }

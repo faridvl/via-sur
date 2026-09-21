@@ -103,22 +103,26 @@ export default function BuscarPage() {
           Buscar
         </h1>
 
-        <div className="relative">
-          <Search
-            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
-            size={18}
-            strokeWidth={1.75}
-            aria-hidden="true"
-          />
-          <input
-            type="text"
-            value={texto}
-            onChange={(e) => setTexto(e.target.value)}
-            placeholder="Buscá un negocio por nombre…"
-            autoFocus
-            className="w-full rounded-xl border border-gray-700 bg-gray-800 py-3.5 pl-11 pr-4 text-sm text-white outline-none placeholder:text-gray-500 focus:border-gray-500"
-          />
-        </div>
+        <label className="flex flex-col gap-2">
+          <span className="text-sm font-semibold text-gray-200">
+            Buscar un negocio por nombre
+          </span>
+          <span className="relative flex items-center">
+            <Search
+              className="pointer-events-none absolute left-4 text-gray-500"
+              size={18}
+              strokeWidth={1.75}
+              aria-hidden="true"
+            />
+            <input
+              type="text"
+              value={texto}
+              onChange={(e) => setTexto(e.target.value)}
+              autoFocus
+              className="w-full rounded-xl border border-gray-700 bg-gray-800 py-3.5 pl-11 pr-4 text-sm text-white outline-none focus:border-gray-500"
+            />
+          </span>
+        </label>
       </header>
 
       {estado === "idle" && (
