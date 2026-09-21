@@ -50,7 +50,7 @@ export default function RootLayout({
     <html lang="es">
       <body className="h-dvh overflow-hidden bg-gray-950 antialiased sm:bg-[radial-gradient(circle_at_top,_theme(colors.gray.900),_theme(colors.gray.950))]">
         <div className="fondo-app mx-auto flex h-dvh w-full max-w-md flex-col overflow-hidden sm:my-6 sm:h-[calc(100dvh-3rem)] sm:max-w-lg sm:rounded-[2.5rem] sm:shadow-2xl sm:ring-1 sm:ring-gray-800">
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
             {children}
           </div>
           <BottomNav />

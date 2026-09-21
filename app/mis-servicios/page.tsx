@@ -431,7 +431,7 @@ export default function MisServiciosPage() {
   }
 
   return (
-    <main className="flex min-h-full w-full flex-col gap-6 px-5 pb-10 pt-6">
+    <main className="flex min-h-full w-full flex-col gap-6 px-5 pb-16 pt-6">
       <div className="flex items-center justify-between gap-3">
         <Button variante="pill" onClick={() => router.back()}>
           ← Volver
