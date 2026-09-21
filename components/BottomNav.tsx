@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Store } from "lucide-react";
+import { Heart, Home, Store } from "lucide-react";
 
 const ITEMS = [
   { href: "/", etiqueta: "Inicio", Icono: Home },
-  { href: "/buscar", etiqueta: "Buscar", Icono: Search },
+  { href: "/favoritos", etiqueta: "Favoritos", Icono: Heart },
   { href: "/mis-servicios", etiqueta: "Mis Servicios", Icono: Store },
 ] as const;
 

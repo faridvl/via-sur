@@ -9,6 +9,7 @@ import { iconoDeCategoria } from "@/lib/categoriaIconos";
 import { registrarEvento } from "@/lib/eventos";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import LlamarButton from "@/components/LlamarButton";
+import FavoritoBoton from "@/components/FavoritoBoton";
 
 type EstadoCarga = "cargando" | "listo" | "no-encontrado" | "error";
 
@@ -101,6 +102,13 @@ export default function DetalleServicioPage() {
       >
         <ArrowLeft size={18} strokeWidth={2} />
       </button>
+
+      {estado === "listo" && servicio && (
+        <FavoritoBoton
+          servicioId={servicio.id}
+          className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-gray-950/60 backdrop-blur-md"
+        />
+      )}
 
       {estado === "cargando" && (
         <div className="flex flex-col items-center gap-2 py-16">

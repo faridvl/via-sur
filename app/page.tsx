@@ -10,6 +10,7 @@ import { iconoDeCategoria } from "@/lib/categoriaIconos";
 import LogoViaSur from "@/components/LogoViaSur";
 import FondoMontanas from "@/components/FondoMontanas";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import FavoritoBoton from "@/components/FavoritoBoton";
 
 type EstadoCarga = "idle" | "cargando" | "listo" | "error";
 
@@ -374,37 +375,45 @@ export default function HomePage() {
                         key={servicio.id}
                         className="group block w-[82%] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-700/60 bg-gray-800 shadow-lg shadow-black/20"
                       >
-                        <Link href={`/servicio/${servicio.id}`}>
-                          <div
-                            className="relative h-40 w-full overflow-hidden bg-gray-900 bg-cover bg-center"
-                            style={
-                              portada
-                                ? { backgroundImage: `url(${portada.url})` }
-                                : undefined
-                            }
-                          >
-                            {!portada && (
-                              <FondoMontanas className="absolute inset-0 h-full w-full" />
-                            )}
-                            <span className="absolute left-3 top-3 flex items-center gap-1 rounded-lg bg-gray-950/70 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wide text-white">
-                              <Star size={10} strokeWidth={2.5} fill="currentColor" aria-hidden="true" />
-                              Destacado
-                            </span>
-                          </div>
+                        <div className="relative">
+                          <FavoritoBoton
+                            servicioId={servicio.id}
+                            className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gray-950/70 backdrop-blur-sm"
+                            size={16}
+                          />
 
-                          {/* Info del negocio */}
-                          <div className="flex flex-col gap-2 bg-gray-850 p-4 pb-0">
-                            <h3 className="text-base font-bold text-white">
-                              {servicio.nombre_servicio}
-                            </h3>
+                          <Link href={`/servicio/${servicio.id}`}>
+                            <div
+                              className="relative h-40 w-full overflow-hidden bg-gray-900 bg-cover bg-center"
+                              style={
+                                portada
+                                  ? { backgroundImage: `url(${portada.url})` }
+                                  : undefined
+                              }
+                            >
+                              {!portada && (
+                                <FondoMontanas className="absolute inset-0 h-full w-full" />
+                              )}
+                              <span className="absolute left-3 top-3 flex items-center gap-1 rounded-lg bg-gray-950/70 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wide text-white">
+                                <Star size={10} strokeWidth={2.5} fill="currentColor" aria-hidden="true" />
+                                Destacado
+                              </span>
+                            </div>
 
-                            {servicio.descripcion && (
-                              <p className="line-clamp-2 text-sm text-gray-400">
-                                {servicio.descripcion}
-                              </p>
-                            )}
-                          </div>
-                        </Link>
+                            {/* Info del negocio */}
+                            <div className="flex flex-col gap-2 bg-gray-850 p-4 pb-0">
+                              <h3 className="text-base font-bold text-white">
+                                {servicio.nombre_servicio}
+                              </h3>
+
+                              {servicio.descripcion && (
+                                <p className="line-clamp-2 text-sm text-gray-400">
+                                  {servicio.descripcion}
+                                </p>
+                              )}
+                            </div>
+                          </Link>
+                        </div>
 
                         {servicio.whatsapp && (
                           <div className="bg-gray-850 p-4 pt-2">
@@ -488,6 +497,11 @@ export default function HomePage() {
                           )}
                         </div>
                       </Link>
+
+                      <FavoritoBoton
+                        servicioId={servicio.id}
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-900"
+                      />
 
                       {servicio.whatsapp && (
                         <WhatsAppButton
