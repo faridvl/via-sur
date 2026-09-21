@@ -683,7 +683,7 @@ export default function MisServiciosPage() {
 
       {/* Drawer móvil */}
       {drawerAbierto && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center">
+        <div className="fixed inset-0 z-[60] flex items-end justify-center">
           <button
             type="button"
             aria-label="Cerrar"
@@ -691,7 +691,7 @@ export default function MisServiciosPage() {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
 
-          <div className="relative flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-t-[2rem] bg-gray-900 shadow-2xl sm:max-w-lg">
+          <div className="relative flex max-h-[92dvh] w-full max-w-md flex-col overflow-hidden rounded-t-[2rem] bg-gray-900 pb-[env(safe-area-inset-bottom)] shadow-2xl sm:max-w-lg">
             <div className="flex items-center justify-between border-b border-gray-800 px-5 py-4">
               <h2 className="text-base font-bold tracking-tight text-white">
                 {modoEdicion ? "Editar servicio" : "Nuevo servicio"}
