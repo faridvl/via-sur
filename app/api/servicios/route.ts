@@ -149,7 +149,23 @@ export async function GET(request: NextRequest) {
       from obtener_servicios_por_dia(${seedValue}, ${localidadId}, ${categoriaId})
     `) as ServicioLocal[];
 
-    return NextResponse.json({ servicios });
+    const imagenes: Record<string, ImagenServicio[]> = {};
+
+    if (servicios.length > 0) {
+      const ids = servicios.map((s) => s.id);
+      const filasImagenes = (await sql`
+        select *
+        from imagenes_servicio
+        where servicio_id = any(${ids})
+        order by servicio_id, orden asc
+      `) as ImagenServicio[];
+
+      for (const img of filasImagenes) {
+        (imagenes[img.servicio_id] ??= []).push(img);
+      }
+    }
+
+    return NextResponse.json({ servicios, imagenes });
   } catch {
     return NextResponse.json(
       { error: "No se pudieron obtener los servicios." },

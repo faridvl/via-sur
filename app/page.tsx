@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { MapPin, Waves } from "lucide-react";
-import { Categoria, Localidad, ServicioLocal } from "@/types/viasur";
+import { useRouter } from "next/navigation";
+import { MapPin, Search, Star } from "lucide-react";
+import { Categoria, ImagenServicio, Localidad, ServicioLocal } from "@/types/viasur";
 import LocationSelector from "@/components/LocationSelector";
 import { iconoDeCategoria } from "@/lib/categoriaIconos";
-import Button from "@/components/Button";
+import LogoViaSur from "@/components/LogoViaSur";
+import FondoMontanas from "@/components/FondoMontanas";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
 type EstadoCarga = "idle" | "cargando" | "listo" | "error";
@@ -15,6 +17,8 @@ const CLAVE_CATEGORIA = "viasur:categoria_id";
 const CLAVE_LOCALIDAD = "viasur:localidad_id";
 
 export default function HomePage() {
+  const router = useRouter();
+
   const [localidades, setLocalidades] = useState<Localidad[]>([]);
   const [localidadId, setLocalidadId] = useState<number | null>(null);
 
@@ -26,6 +30,7 @@ export default function HomePage() {
   const [restauracionLista, setRestauracionLista] = useState(false);
 
   const [servicios, setServicios] = useState<ServicioLocal[]>([]);
+  const [imagenes, setImagenes] = useState<Record<string, ImagenServicio[]>>({});
   const [estadoServicios, setEstadoServicios] = useState<EstadoCarga>("idle");
 
   // Carga inicial: localidades y categorías en paralelo.
@@ -69,6 +74,9 @@ export default function HomePage() {
           }
         }
 
+        // Sin categoría por defecto: al entrar se ven todos los servicios
+        // de la localidad. Solo se restaura una categoría si el usuario
+        // ya había elegido una en esta misma sesión.
         const categoriaGuardada = Number(
           sessionStorage.getItem(CLAVE_CATEGORIA)
         );
@@ -78,13 +86,6 @@ export default function HomePage() {
 
         if (categoriaValida) {
           setCategoriaId(categoriaGuardada);
-        } else {
-          const categoriaTaxis = dataCategorias.categorias?.find(
-            (c) => c.nombre === "Taxis y Fletes"
-          );
-          if (categoriaTaxis) {
-            setCategoriaId(categoriaTaxis.id);
-          }
         }
       } catch {
         // Silencioso: los selectores simplemente quedarán vacíos.
@@ -103,9 +104,12 @@ export default function HomePage() {
   }, []);
 
   // Carga de servicios cada vez que cambia localidad y/o categoría.
+  // La categoría es opcional: sin ella se traen todos los servicios
+  // de la localidad.
   useEffect(() => {
-    if (!localidadId || !categoriaId) {
+    if (!localidadId) {
       setServicios([]);
+      setImagenes({});
       return;
     }
 
@@ -116,8 +120,11 @@ export default function HomePage() {
       try {
         const params = new URLSearchParams({
           localidad_id: String(localidadId),
-          categoria_id: String(categoriaId),
         });
+
+        if (categoriaId) {
+          params.set("categoria_id", String(categoriaId));
+        }
 
         const res = await fetch(`/api/servicios?${params.toString()}`);
 
@@ -125,10 +132,14 @@ export default function HomePage() {
           throw new Error("Respuesta no exitosa del servidor.");
         }
 
-        const data: { servicios: ServicioLocal[] } = await res.json();
+        const data: {
+          servicios: ServicioLocal[];
+          imagenes?: Record<string, ImagenServicio[]>;
+        } = await res.json();
 
         if (!cancelado) {
           setServicios(data.servicios ?? []);
+          setImagenes(data.imagenes ?? {});
           setEstadoServicios("listo");
         }
       } catch {
@@ -201,231 +212,295 @@ export default function HomePage() {
   const localidadActual = localidades.find((l) => l.id === localidadId);
 
   return (
-    <main className="flex min-h-screen w-full flex-col gap-5 px-5 pb-10 pt-6">
-      {/* Header con isotipo + contexto dinámico de la localidad activa */}
-      <header className="flex flex-col gap-1">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-500/15">
-              <Waves className="text-primary-400" size={16} strokeWidth={2} aria-hidden="true" />
-            </span>
-            <h1 className="text-xl font-bold tracking-tight text-white">
-              VíaSur
-            </h1>
+    <main className="flex min-h-screen w-full flex-col pb-10">
+      {/* Header hero: fondo de paisaje detrás de marca, ubicación y buscador */}
+      <header className="relative overflow-hidden px-5 pb-5 pt-6">
+        <FondoMontanas className="absolute inset-0 h-full w-full" />
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-950/10 via-gray-950/40 to-gray-950" />
+
+        <div className="relative flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <LogoViaSur className="text-primary-400" size={30} />
+              <div className="flex flex-col leading-none">
+                <h1 className="text-xl font-bold tracking-tight">
+                  <span className="text-white">Vía</span>
+                  <span className="text-primary-400">Sur</span>
+                </h1>
+                <p className="mt-1 text-[10px] font-medium text-gray-300">
+                  Servicios y negocios locales del sur de Costa Rica
+                </p>
+              </div>
+            </div>
+
+            <LocationSelector
+              localidades={localidades}
+              localidadId={localidadId}
+              onSeleccionar={setLocalidadId}
+            />
           </div>
 
-          <LocationSelector
-            localidades={localidades}
-            localidadId={localidadId}
-            onSeleccionar={setLocalidadId}
-          />
+          <button
+            type="button"
+            onClick={() => router.push("/buscar")}
+            className="flex items-center gap-2.5 rounded-full border border-gray-700 bg-gray-900/80 px-4 py-3 text-left text-sm text-gray-400 backdrop-blur-sm transition-transform active:scale-[0.98]"
+          >
+            <Search size={18} strokeWidth={1.75} aria-hidden="true" />
+            Buscar servicios o negocios…
+          </button>
         </div>
-
-        <p className="pl-10 text-xs font-medium text-gray-500">
-          {localidadActual
-            ? `Servicios en ${localidadActual.nombre}`
-            : "Servicios del Pacífico Sur"}
-        </p>
       </header>
 
-      {/* Categorías — carrusel horizontal de burbujas, con indicador de scroll */}
-      <div className="relative -mx-5">
-        <section className="no-scrollbar flex snap-x gap-5 overflow-x-auto px-5 pb-1">
-          {categorias.map((categoria) => {
-            const seleccionada = categoria.id === categoriaId;
-            const Icono = iconoDeCategoria(categoria.nombre);
+      <div className="flex flex-col gap-5 px-5">
+        {/* Categorías — carrusel horizontal, con indicador de scroll */}
+        <div className="relative -mx-5">
+          <section className="no-scrollbar flex snap-x gap-5 overflow-x-auto px-5 pb-1">
+            {categorias.map((categoria) => {
+              const seleccionada = categoria.id === categoriaId;
+              const Icono = iconoDeCategoria(categoria.nombre);
 
-            return (
-              <button
-                key={categoria.id}
-                ref={(el) => {
-                  if (el) {
-                    categoriaBotonRef.current.set(categoria.id, el);
-                  } else {
-                    categoriaBotonRef.current.delete(categoria.id);
+              return (
+                <button
+                  key={categoria.id}
+                  ref={(el) => {
+                    if (el) {
+                      categoriaBotonRef.current.set(categoria.id, el);
+                    } else {
+                      categoriaBotonRef.current.delete(categoria.id);
+                    }
+                  }}
+                  type="button"
+                  onClick={() =>
+                    setCategoriaId(seleccionada ? null : categoria.id)
                   }
-                }}
-                type="button"
-                onClick={() =>
-                  setCategoriaId(seleccionada ? null : categoria.id)
-                }
-                aria-pressed={seleccionada}
-                className="flex shrink-0 snap-start flex-col items-center gap-1.5 p-1.5 transition-transform active:scale-95"
-              >
-                <span
-                  className={`flex h-16 w-16 items-center justify-center rounded-full transition-colors ${
-                    seleccionada ? "bg-gray-700" : "bg-gray-800/80"
-                  }`}
+                  aria-pressed={seleccionada}
+                  className="flex shrink-0 snap-start flex-col items-center gap-1.5 p-1.5 transition-transform active:scale-95"
                 >
-                  <Icono
-                    className={seleccionada ? "text-white" : "text-gray-400"}
-                    size={26}
-                    strokeWidth={1.5}
-                    aria-hidden="true"
-                  />
-                </span>
-                <span className="text-xs font-medium leading-tight text-white">
-                  {categoria.nombre}
-                </span>
-              </button>
-            );
-          })}
-        </section>
-
-        {/* Fade derecho: indica que hay más categorías fuera de pantalla */}
-        <div
-          className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-gray-950 to-transparent"
-          aria-hidden="true"
-        />
-      </div>
-
-      {/* Resultados */}
-      {categoriaId && (
-        <section className="mt-3 flex flex-col gap-8">
-          {estadoServicios === "cargando" && (
-            <div className="flex flex-col items-center gap-2 py-10">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-700 border-t-primary-400" />
-              <p className="text-sm font-medium text-gray-400">
-                Buscando servicios…
-              </p>
-            </div>
-          )}
-
-          {estadoServicios === "error" && (
-            <p className="text-center text-sm font-medium text-red-400">
-              No se pudieron cargar los servicios.
-            </p>
-          )}
-
-          {estadoServicios === "listo" && servicios.length === 0 && (
-            <div className="flex flex-col items-center gap-3 rounded-xl bg-gray-800/60 px-6 py-12 text-center">
-              {categoriaSeleccionada &&
-                (() => {
-                  const IconoVacio = iconoDeCategoria(
-                    categoriaSeleccionada.nombre
-                  );
-                  return (
-                    <IconoVacio
-                      className="text-gray-500"
-                      size={32}
+                  <span
+                    className={`flex h-16 w-16 items-center justify-center rounded-full border transition-colors ${
+                      seleccionada
+                        ? "border-primary-500 bg-primary-500/15"
+                        : "border-gray-800 bg-gray-800/80"
+                    }`}
+                  >
+                    <Icono
+                      className={seleccionada ? "text-primary-400" : "text-gray-400"}
+                      size={26}
                       strokeWidth={1.5}
                       aria-hidden="true"
                     />
-                  );
-                })()}
-              <p className="text-sm font-semibold text-gray-200">
-                Todavía no hay servicios de {categoriaSeleccionada?.nombre} en
-                esta localidad.
-              </p>
-              <p className="text-xs text-gray-400">
-                ¿Tenés un negocio de esta categoría?
-              </p>
-              <Link
-                href="/mis-servicios"
-                className="mt-1 rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
-              >
-                Sé el primero en registrarte
-              </Link>
-            </div>
-          )}
+                  </span>
+                  <span className="text-xs font-medium leading-tight text-white">
+                    {categoria.nombre}
+                  </span>
+                </button>
+              );
+            })}
+          </section>
 
-          {destacados.length > 0 && (
-            <div className="flex flex-col gap-4">
-              <h2 className="text-[11px] font-bold uppercase tracking-widest text-gray-500">
-                Destacados
-              </h2>
-              <div className="no-scrollbar -mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-1">
-                {destacados.map((servicio) => {
+          {/* Fade derecho: indica que hay más categorías fuera de pantalla */}
+          <div
+            className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-gray-950 to-transparent"
+            aria-hidden="true"
+          />
+        </div>
+
+        {/* Resultados */}
+        {localidadId && (
+          <section className="flex flex-col gap-8">
+            {estadoServicios === "cargando" && (
+              <div className="flex flex-col items-center gap-2 py-10">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-700 border-t-primary-400" />
+                <p className="text-sm font-medium text-gray-400">
+                  Buscando servicios…
+                </p>
+              </div>
+            )}
+
+            {estadoServicios === "error" && (
+              <p className="text-center text-sm font-medium text-red-400">
+                No se pudieron cargar los servicios.
+              </p>
+            )}
+
+            {estadoServicios === "listo" && servicios.length === 0 && (
+              <div className="flex flex-col items-center gap-3 rounded-xl bg-gray-800/60 px-6 py-12 text-center">
+                {categoriaSeleccionada &&
+                  (() => {
+                    const IconoVacio = iconoDeCategoria(
+                      categoriaSeleccionada.nombre
+                    );
+                    return (
+                      <IconoVacio
+                        className="text-gray-500"
+                        size={32}
+                        strokeWidth={1.5}
+                        aria-hidden="true"
+                      />
+                    );
+                  })()}
+                <p className="text-sm font-semibold text-gray-200">
+                  {categoriaSeleccionada
+                    ? `Todavía no hay servicios de ${categoriaSeleccionada.nombre} en esta localidad.`
+                    : "Todavía no hay servicios registrados en esta localidad."}
+                </p>
+                <p className="text-xs text-gray-400">
+                  ¿Tenés un negocio de esta categoría?
+                </p>
+                <Link
+                  href="/mis-servicios"
+                  className="mt-1 rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
+                >
+                  Sé el primero en registrarte
+                </Link>
+              </div>
+            )}
+
+            {destacados.length > 0 && (
+              <div className="flex flex-col gap-4">
+                <h2 className="text-[11px] font-bold uppercase tracking-widest text-gray-500">
+                  Destacados
+                </h2>
+                <div className="no-scrollbar -mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-1">
+                  {destacados.map((servicio) => {
+                    const portada = imagenes[servicio.id]?.[0];
+
+                    return (
+                      <div
+                        key={servicio.id}
+                        className="group block w-[82%] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-700/60 bg-gray-800 shadow-lg shadow-black/20"
+                      >
+                        <Link href={`/servicio/${servicio.id}`}>
+                          <div
+                            className="relative h-40 w-full overflow-hidden bg-gray-900 bg-cover bg-center"
+                            style={
+                              portada
+                                ? { backgroundImage: `url(${portada.url})` }
+                                : undefined
+                            }
+                          >
+                            {!portada && (
+                              <FondoMontanas className="absolute inset-0 h-full w-full" />
+                            )}
+                            <span className="absolute left-3 top-3 flex items-center gap-1 rounded-lg bg-gray-950/70 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wide text-white">
+                              <Star size={10} strokeWidth={2.5} fill="currentColor" aria-hidden="true" />
+                              Destacado
+                            </span>
+                          </div>
+
+                          {/* Info del negocio */}
+                          <div className="flex flex-col gap-2 bg-gray-850 p-4 pb-0">
+                            <h3 className="text-base font-bold text-white">
+                              {servicio.nombre_servicio}
+                            </h3>
+
+                            {servicio.descripcion && (
+                              <p className="line-clamp-2 text-sm text-gray-400">
+                                {servicio.descripcion}
+                              </p>
+                            )}
+                          </div>
+                        </Link>
+
+                        {servicio.whatsapp && (
+                          <div className="bg-gray-850 p-4 pt-2">
+                            <WhatsAppButton
+                              numero={servicio.whatsapp}
+                              label="Escribir por WhatsApp"
+                              variante="sutil"
+                              className="w-full px-3.5 py-2.5 text-xs"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {regulares.length > 0 && (
+              <div className="flex flex-col gap-3">
+                <h2 className="text-[11px] font-bold uppercase tracking-widest text-gray-500">
+                  Servicios
+                </h2>
+                {regulares.map((servicio) => {
+                  const categoria = categorias.find(
+                    (c) => c.id === servicio.categoria_id
+                  );
+                  const IconoCategoria = categoria
+                    ? iconoDeCategoria(categoria.nombre)
+                    : null;
+                  const portada = imagenes[servicio.id]?.[0];
+
                   return (
                     <div
                       key={servicio.id}
-                      className="group block w-[82%] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-700/60 bg-gray-800 shadow-lg shadow-black/20"
+                      className="flex items-center gap-3 rounded-xl border border-gray-700/60 bg-gray-800 p-3 shadow-md shadow-black/20 transition-transform active:scale-[0.98]"
                     >
-                      <Link href={`/servicio/${servicio.id}`}>
-                        {/* Imagen protagonista (placeholder con degradado sutil si no hay foto) */}
-                        <div className="relative h-40 w-full bg-gradient-to-br from-gray-700 to-gray-900">
-                          <span className="absolute left-3 top-3 rounded-lg bg-gray-950/70 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wide text-white">
-                            Destacado
-                          </span>
+                      <Link
+                        href={`/servicio/${servicio.id}`}
+                        className="flex min-w-0 flex-1 items-center gap-3"
+                      >
+                        <div
+                          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-900 bg-cover bg-center"
+                          style={
+                            portada
+                              ? { backgroundImage: `url(${portada.url})` }
+                              : undefined
+                          }
+                        >
+                          {!portada && (
+                            <>
+                              <FondoMontanas className="absolute inset-0 h-full w-full" />
+                              {IconoCategoria && (
+                                <div className="relative flex h-full w-full items-center justify-center">
+                                  <IconoCategoria
+                                    className="text-white/70"
+                                    size={22}
+                                    strokeWidth={1.25}
+                                    aria-hidden="true"
+                                  />
+                                </div>
+                              )}
+                            </>
+                          )}
                         </div>
 
-                        {/* Info del negocio */}
-                        <div className="flex flex-col gap-2 bg-gray-850 p-4 pb-0">
-                          <h3 className="text-base font-bold text-white">
+                        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                          <h3 className="truncate text-sm font-bold tracking-tight text-white">
                             {servicio.nombre_servicio}
                           </h3>
-
                           {servicio.descripcion && (
-                            <p className="line-clamp-2 text-sm text-gray-400">
+                            <p className="truncate text-xs text-gray-400">
                               {servicio.descripcion}
+                            </p>
+                          )}
+                          {servicio.direccion_exacta && (
+                            <p className="flex items-center gap-1 truncate text-[11px] font-medium text-gray-500">
+                              <MapPin size={11} strokeWidth={1.75} aria-hidden="true" />
+                              {servicio.direccion_exacta}
                             </p>
                           )}
                         </div>
                       </Link>
 
                       {servicio.whatsapp && (
-                        <div className="bg-gray-850 p-4 pt-2">
-                          <WhatsAppButton
-                            numero={servicio.whatsapp}
-                            label="Escribir por WhatsApp"
-                            variante="sutil"
-                            className="w-full px-3.5 py-2.5 text-xs"
-                          />
-                        </div>
+                        <WhatsAppButton
+                          numero={servicio.whatsapp}
+                          variante="solido"
+                          label=""
+                          className="h-10 w-10 shrink-0 rounded-full p-0"
+                        />
                       )}
                     </div>
                   );
                 })}
               </div>
-            </div>
-          )}
-
-          {regulares.length > 0 && (
-            <div className="flex flex-col gap-3">
-              <h2 className="text-[11px] font-bold uppercase tracking-widest text-gray-500">
-                Servicios
-              </h2>
-              {regulares.map((servicio) => (
-                <div
-                  key={servicio.id}
-                  className="flex flex-col gap-2 rounded-xl border border-gray-700/60 bg-gray-800 p-4 shadow-md shadow-black/20 transition-transform active:scale-[0.98]"
-                >
-                  <Link href={`/servicio/${servicio.id}`} className="flex flex-col gap-2">
-                    <h3 className="text-sm font-bold tracking-tight text-white">
-                      {servicio.nombre_servicio}
-                    </h3>
-                    {servicio.descripcion && (
-                      <p className="text-xs leading-relaxed text-gray-400">
-                        {servicio.descripcion}
-                      </p>
-                    )}
-                    {servicio.direccion_exacta && (
-                      <p className="flex items-center gap-1 text-[11px] font-medium text-gray-500">
-                        <MapPin size={12} strokeWidth={1.75} aria-hidden="true" />
-                        {servicio.direccion_exacta}
-                      </p>
-                    )}
-                  </Link>
-                  {servicio.whatsapp && (
-                    <WhatsAppButton
-                      numero={servicio.whatsapp}
-                      label="Escribir por WhatsApp"
-                      variante="sutil"
-                      className="mt-1 self-start px-3.5 py-2 text-xs"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      )}
-
-      {!categoriaId && (
-        <p className="text-center text-sm font-medium text-gray-500">
-          Elegí una categoría para ver los servicios disponibles.
-        </p>
-      )}
+            )}
+          </section>
+        )}
+      </div>
     </main>
   );
 }

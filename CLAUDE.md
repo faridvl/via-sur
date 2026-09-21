@@ -41,6 +41,8 @@ Re-running `init.sql` is safe — it uses `create table if not exists` / `create
 
 **Path alias:** `@/*` maps to the repo root (see `tsconfig.json`), e.g. `@/lib/db`, `@/types/viasur`.
 
+**Service photos live in Cloudflare R2, not Neon.** `POST /api/upload` (`app/api/upload/route.ts`) uploads directly to an R2 bucket via the S3-compatible `@aws-sdk/client-s3` client and returns a public URL under `R2_PUBLIC_URL`; that URL is what gets stored in the `imagenes_servicio` table (`GET /api/servicios` and the `usuario_id` branch both join against it). The R2 client is a lazy singleton in that route file, same rationale as `lib/db.ts`.
+
 ### Request flow
 
 ```
@@ -59,3 +61,10 @@ API routes do manual validation against the enum value lists (`Object.values(Cat
 | Variable | Description |
 |---|---|
 | `DATABASE_URL` | Neon pooled connection string, includes `sslmode=require` |
+| `RESEND_API_KEY` | Resend API key, used to send magic-link login emails |
+| `RESEND_FROM_EMAIL` | From address for magic-link emails |
+| `R2_ACCOUNT_ID` | Cloudflare account ID — builds the R2 S3-compatible endpoint |
+| `R2_ACCESS_KEY_ID` | R2 API token access key (Object Read & Write) |
+| `R2_SECRET_ACCESS_KEY` | R2 API token secret |
+| `R2_BUCKET_NAME` | R2 bucket that stores service photos |
+| `R2_PUBLIC_URL` | Public base URL for the bucket (r2.dev subdomain or custom domain) — prepended to uploaded object keys |
