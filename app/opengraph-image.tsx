@@ -16,20 +16,29 @@ export default function Image() {
           alignItems: "center",
           justifyContent: "center",
           backgroundImage:
-            "linear-gradient(135deg, #312e81 0%, #1e3a8a 55%, #059669 100%)",
+            "linear-gradient(135deg, #0a4f9c 0%, #0a1830 100%)",
         }}
       >
-        <svg width="220" height="220" viewBox="0 0 512 512">
-          <g transform="translate(256 266)">
+        <svg width="240" height="240" viewBox="0 0 512 512">
+          <g
+            transform="translate(256 216)"
+            fill="none"
+            stroke="#ffffff"
+            strokeWidth="26"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M -152 96 L -68 -72 L -8 48 L 44 -48 L 152 96" />
+          </g>
+          <g stroke="#3b9eff" strokeWidth="18" strokeLinecap="round" fill="none">
             <path
-              d="M -108 -96 L -18 84 Q 0 122 18 84 L 108 -96"
-              fill="none"
-              stroke="#ffffff"
-              strokeWidth="34"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+              d="M 76 356 Q 140 316 204 356 T 332 356 T 436 356"
+              opacity="0.9"
             />
-            <circle cx="0" cy="108" r="17" fill="#ffffff" />
+            <path
+              d="M 76 408 Q 140 372 204 408 T 332 408 T 436 408"
+              opacity="0.5"
+            />
           </g>
         </svg>
         <div
@@ -52,7 +61,7 @@ export default function Image() {
           <div
             style={{
               fontSize: 32,
-              color: "#d1fae5",
+              color: "#d9ebff",
               marginTop: 16,
             }}
           >
