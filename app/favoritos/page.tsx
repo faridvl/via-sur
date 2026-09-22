@@ -116,7 +116,7 @@ export default function FavoritosPage() {
   }, [favoritos]);
 
   return (
-    <main className="flex min-h-full w-full flex-col gap-5 px-5 pb-16 pt-6">
+    <main className="flex min-h-full w-full flex-col gap-5 px-5 pb-10 pt-6">
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight text-white">
           Favoritos
